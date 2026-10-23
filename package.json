@@ -1,0 +1,31 @@
+{
+  "name": "chalkline",
+  "version": "1.4.0",
+  "private": true,
+  "description": "Chalkline: charades for game night (Capacitor iOS app)",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "test": "node tests/smoke.mjs && node tests/features.mjs && node tests/themes.mjs && node tests/arabic.mjs && node tests/intro.mjs && node tests/sync-e2e.mjs",
+    "test:smoke": "node tests/smoke.mjs",
+    "test:sync": "node tests/sync-e2e.mjs",
+    "serve": "python3 -m http.server 8080 --directory www",
+    "test:features": "node tests/features.mjs",
+    "test:themes": "node tests/themes.mjs",
+    "perf": "node tests/perf.mjs",
+    "test:arabic": "node tests/arabic.mjs",
+    "test:intro": "node tests/intro.mjs",
+    "frames": "node tests/intro-frames.mjs"
+  },
+  "dependencies": {
+    "@capacitor-community/keep-awake": "8.0.1",
+    "@capacitor/core": "8.5.2",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/ios": "8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "3.0.5",
+    "@capacitor/cli": "8.5.2",
+    "@electric-sql/pglite": "0.5.8",
+    "playwright": "1.56.0"
+  }
+}

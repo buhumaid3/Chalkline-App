@@ -1,0 +1,1840 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1F2A24">
+<meta name="color-scheme" content="dark">
+<title>Chalkline</title>
+<!--__FONTS__-->
+<style>
+@font-face{font-family:'CL Sketch';src:url(fonts/cabin-sketch-700.woff2) format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'CL Card';src:url(fonts/archivo-black-400.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'CL UI';src:url(fonts/archivo-400.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'CL UI';src:url(fonts/archivo-600.woff2) format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'CL UI';src:url(fonts/archivo-700.woff2) format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'CL Mono';src:url(fonts/jetbrains-mono-500.woff2) format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'CL Mono';src:url(fonts/jetbrains-mono-700.woff2) format('woff2');font-weight:700;font-display:swap}
+@font-face{font-family:'CL Arabic';src:url(fonts/cairo-arabic-500.woff2) format('woff2');font-weight:500;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+060C}
+@font-face{font-family:'CL Arabic';src:url(fonts/cairo-arabic-700.woff2) format('woff2');font-weight:700;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+060C}
+@font-face{font-family:'CL Arabic';src:url(fonts/cairo-arabic-900.woff2) format('woff2');font-weight:900;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+060C}
+
+/*__THEMES__*/
+:root{
+  --card:#F6F0DC; --ink:#26221C; --ink-2:#6A6253; --rule-red:#D9534F; --rule-blue:#8FB3D9;
+  --timer:#E8632B; --sage:#7DBA74; --miss:#D9534F;
+  --f-display:'CL Sketch','Cabin Sketch','CL Arabic','Cairo','Chalkboard SE','Marker Felt',cursive;
+  --f-card:'CL Card','Archivo Black','CL Arabic','Cairo','Arial Black',Impact,sans-serif;
+  --f-arabic:'CL Arabic','Cairo','Geeza Pro',sans-serif;
+  --f-ui:'CL UI','Archivo','CL Arabic','Cairo',-apple-system,system-ui,'Segoe UI',sans-serif;
+  --f-mono:'CL Mono','JetBrains Mono','CL Arabic','Cairo',ui-monospace,Menlo,monospace;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  padding-left:env(safe-area-inset-left,0px);
+  padding-right:env(safe-area-inset-right,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--slate)}
+body{
+  height:100%;margin:0;color:var(--chalk);font:400 17px/1.45 var(--f-ui);
+  background:var(--surface-bg);background-attachment:fixed;
+  -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;
+  overscroll-behavior:none;-webkit-text-size-adjust:100%;
+}
+#app{position:relative;height:100%;overflow:hidden}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen.on{display:flex}
+.wrap{width:100%;max-width:560px;margin:0 auto;padding:18px 20px 36px}
+h1,h2,h3{margin:0;font-weight:700}
+.sk{font-family:var(--f-display);letter-spacing:.01em}
+.h2{font:700 34px/1.05 var(--f-display);margin:6px 0 4px}
+.sh{font:700 24px/1.15 var(--f-display);margin:26px 0 10px;color:var(--chalk)}
+.muted{color:var(--chalk-2)}
+.small{font-size:14px}
+p{margin:.4em 0}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
+button:focus-visible,input:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+.back{background:none;border:0;padding:10px 4px;color:var(--chalk-2);font:600 16px var(--f-ui);min-height:44px}
+.back::before{content:"";display:inline-block;width:9px;height:9px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-right:8px;vertical-align:1px}
+
+/* buttons */
+.btn{display:block;width:100%;min-height:52px;padding:13px 18px;border:2px solid var(--chalk-2);border-radius:12px 9px 13px 10px;background:transparent;color:var(--chalk);font:600 17px/1.2 var(--f-ui);text-align:center}
+.btn:active{transform:translateY(1px)}
+.btn.quiet{border-color:var(--chalk-line);color:var(--chalk-2)}
+.btn.danger{border-color:var(--danger-text);color:var(--danger-text)}
+.btn[disabled]{opacity:.4;pointer-events:none}
+.idx{
+  position:relative;display:block;width:100%;border:0;text-align:left;color:var(--ink);
+  padding:12px 18px 16px;border-radius:3px;
+  background:
+    linear-gradient(var(--rule-red),var(--rule-red)) 0 46px/100% 2px no-repeat,
+    repeating-linear-gradient(to bottom,transparent 0 23px,rgba(143,179,217,.55) 23px 24px) 0 48px/100% calc(100% - 48px) no-repeat,
+    var(--card);
+  box-shadow:0 2px 0 rgba(0,0,0,.08),0 12px 24px rgba(0,0,0,.38);
+  transition:transform .12s ease;
+}
+.idx:active{transform:translateY(2px) rotate(0deg)!important}
+.idx .t{display:block;font:400 23px/26px var(--f-card);height:30px}
+.idx .s{display:block;font:600 15px/24px var(--f-ui);color:var(--ink-2);margin-top:6px}
+.stack{display:grid;gap:16px}
+.stack .idx:nth-child(3n+1){transform:rotate(-.7deg)}
+.stack .idx:nth-child(3n+2){transform:rotate(.5deg)}
+.stack .idx:nth-child(3n){transform:rotate(-.25deg)}
+.links{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 18px;margin-top:26px}
+.link{background:none;border:0;padding:10px 6px;font:600 17px var(--f-ui);color:var(--chalk);text-decoration:underline;text-decoration-color:var(--chalk-3);text-underline-offset:5px;min-height:44px}
+
+/* segmented */
+.seg{display:flex;gap:8px}
+.seg button{flex:1 1 0;min-width:0;min-height:46px;padding:8px 10px;border:2px solid var(--chalk-line);border-radius:10px 8px 11px 9px;background:transparent;color:var(--chalk-2);font:600 15px/1.15 var(--f-ui)}
+.seg button[aria-pressed="true"]{background:var(--chalk);border-color:var(--chalk);color:var(--slate)}
+.hint{font-size:14px;color:var(--chalk-2);margin:8px 0 0;min-height:1.4em}
+
+/* fields */
+label.lab{display:block;font:600 14px var(--f-ui);color:var(--chalk-2);margin:0 0 4px}
+input.txt,textarea.txt{width:100%;background:transparent;border:0;border-bottom:2px solid var(--chalk-3);color:var(--chalk);font:600 18px/1.3 var(--f-ui);padding:8px 2px;border-radius:0;-webkit-user-select:text;user-select:text}
+textarea.txt{border:2px solid var(--chalk-3);border-radius:8px;padding:10px 12px;min-height:220px;resize:vertical;font-weight:400;font-size:17px}
+input.txt:focus,textarea.txt:focus{outline:none;border-color:var(--bulb)}
+input.txt::placeholder,textarea.txt::placeholder{color:var(--chalk-2)}
+
+/* teams */
+.team{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:start;padding:10px 0 14px;border-bottom:1px dashed var(--chalk-line)}
+.team .sw{width:10px;align-self:stretch;border-radius:4px}
+.team .rm{background:none;border:0;color:var(--chalk-2);font:600 15px var(--f-ui);padding:10px 4px;min-height:44px}
+.team .players{margin-top:8px;font-size:16px;font-weight:400}
+
+/* badges */
+.badge{width:28px;height:28px;flex:none;display:block}
+.badge path,.badge circle{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.bpick{background:none;border:2px dashed var(--chalk-3);border-radius:12px 9px 13px 10px;width:52px;height:52px;display:grid;place-items:center;padding:0}
+.bpick .badge{width:30px;height:30px}
+#hoBadge{display:grid;place-items:center;margin:6px 0 10px}
+.handoff > *{flex-shrink:0}
+#hoBadge:empty{display:none}
+#hoBadge .badge{width:68px;height:68px}
+#hoBadge .badge path,#hoBadge .badge circle{stroke-width:1.8}
+/* act styles */
+.style-chip{display:inline-block;font:400 18px/1 var(--f-card);padding:6px 10px 5px;border-radius:3px;background:var(--ink);color:var(--card);transform:rotate(-2deg);white-space:nowrap}
+.style-chip.bonus{background:var(--rule-red)}
+.style-chip:empty{display:none}
+.icard-head .cat{margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res .st{display:block;font-size:13px;color:var(--chalk-2);font-weight:400}
+/* scoreboard */
+.wood{margin-top:12px;padding:12px;border-radius:8px;background:var(--frame-bg);box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.board-inner{background:var(--board-bg);color:var(--board-ink);border-radius:3px;padding:2px 14px;box-shadow:inset 0 2px 10px rgba(0,0,0,.5)}
+.brow{display:grid;grid-template-columns:34px 1fr auto;gap:4px 12px;align-items:center;padding:14px 0;border-bottom:1px dashed var(--board-line)}
+.brow:last-child{border-bottom:0}
+.brow .bn{font:700 24px/1.1 var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brow .bs{font:700 30px/1 var(--f-mono)}
+.brow .gain{display:block;font:600 13px var(--f-ui);color:var(--board-accent)}
+.tallies{grid-column:2 / 4;display:flex;flex-wrap:wrap;gap:4px 10px;min-height:6px}
+.tg{width:34px;height:28px;flex:none}
+.tg path{stroke:var(--board-ink);stroke-width:2.6;stroke-linecap:round;fill:none}
+.tg path.new{stroke:var(--board-accent);stroke-dasharray:40;stroke-dashoffset:40;animation:draw .22s ease-out forwards}
+.tmore{font:600 14px var(--f-ui);color:var(--chalk-2);align-self:center}
+/* highlights */
+.hl{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+.hl .idx{padding:12px 14px 12px}
+.hl .t{font-size:16px;height:30px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hl .v{display:block;font:400 19px/24px var(--f-card);color:var(--ink);margin-top:6px;overflow-wrap:break-word}
+.hl .v.long{font-size:15px}
+.hl .s{margin-top:0;font-size:14px}
+@media (min-width:1000px){.hl{grid-template-columns:repeat(4,1fr)}}
+
+/* ---------- v1.2 animation moments (transform / opacity / stroke-dashoffset only) ---------- */
+/* menu deal-in, played as the launch intro hands over (cold start only) */
+#menu.dealin #menuCards .idx{animation:deal .42s cubic-bezier(.2,.8,.2,1) both}
+#menu.dealin #menuCards .idx:nth-child(2){animation-delay:.09s}
+#menu.dealin #menuCards .idx:nth-child(3){animation-delay:.18s}
+#menu.dealin .links,#menu.dealin .logo p,#menu.dealin #menuLights{animation:fadein .4s .2s both}
+/* launch intro: an opaque blank board that matches the native splash, then chalk writes the logo.
+   CSS failsafe: if the script never runs, the overlay hides itself after 5 s. */
+#intro{position:fixed;inset:0;z-index:9999;background:#1F2A24;touch-action:none;animation:introfailsafe .01s 5s forwards}
+@keyframes introfailsafe{to{opacity:0;visibility:hidden}}
+html[data-motion="reduced"] #intro{animation-duration:.01s!important;animation-delay:5s!important}
+#intro > svg.main{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
+#intro > svg.uls{position:absolute;display:block;overflow:visible}
+#intro .ls{fill:none;stroke:#EDEBE4;stroke-linecap:round;stroke-linejoin:round}
+#intro .lf{fill:#EDEBE4;opacity:0}
+#intro .ul{fill:none;stroke:#EDEBE4;stroke-width:3;stroke-linecap:round;opacity:.8}
+#intro .chalk{position:absolute;left:0;top:0;border-radius:3px 3px 4px 4px;background:linear-gradient(90deg,#D9D5CA,#F7F4EC 45%,#E4E0D6);box-shadow:0 2px 4px rgba(0,0,0,.35);opacity:0;transform-origin:50% 100%;will-change:transform}
+#intro .dust{position:absolute;left:0;top:0;width:5px;height:5px;border-radius:50%;background:#EDEBE4;opacity:0;will-change:transform,opacity}
+@keyframes chalkin{from{opacity:0;transform:translateY(10px) scale(.96)}}
+@keyframes deal{from{opacity:0;transform:translate(-36px,70px) rotate(-12deg)}}
+@keyframes fadein{from{opacity:0}}
+#count .n.scrawl{animation:scrawl .8s ease-out both}
+@keyframes scrawl{0%{opacity:0;transform:scale(.55) rotate(-9deg)}22%{opacity:1;transform:scale(1.05) rotate(-2deg)}30%{transform:scale(1) rotate(-2deg)}70%{opacity:1}92%,100%{opacity:0;transform:scale(1) rotate(-2deg)}}
+.eraser{position:absolute;left:0;top:50%;width:min(44vmin,240px);height:min(17vmin,90px);margin-top:calc(min(17vmin,90px) / -2);border-radius:8px;background:linear-gradient(180deg,#7A5536 0 38%,#3B3A3F 38%);box-shadow:0 10px 24px rgba(0,0,0,.4);opacity:0;pointer-events:none}
+.eraser.go{animation:erase .8s ease-in-out both}
+@keyframes erase{0%,60%{opacity:0;transform:translateX(-110%) rotate(-6deg)}64%{opacity:1}92%{opacity:1;transform:translateX(105vw) rotate(-6deg)}100%{opacity:0;transform:translateX(105vw) rotate(-6deg)}}
+.dial.tick{animation:shake .34s ease}
+.dial.tick .ticks{animation:tpulse .34s ease;transform-origin:50px 50px}
+@keyframes shake{20%{transform:rotate(-7deg)}45%{transform:rotate(6deg)}70%{transform:rotate(-3deg)}}
+@keyframes tpulse{40%{transform:scale(1.07)}}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:15;display:none}
+.stand .badge.stamp{animation:stamp .5s .3s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes stamp{from{opacity:0;transform:scale(2.4) rotate(-20deg)}}
+#toast.award{font:400 18px/1.3 var(--f-card);padding:20px 22px 14px;border-radius:3px;transform:translateX(-50%) rotate(-1.5deg);
+  background:linear-gradient(var(--rule-red),var(--rule-red)) 0 46px/100% 2px no-repeat,var(--card)}
+#toast.award .lbl{display:block;font:600 13px var(--f-ui);color:var(--ink-2);margin-bottom:12px;text-align:left}
+#toast.award::before{content:"";position:absolute;top:-8px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff9a9a,#c01d2e 60%,#7a0d18);box-shadow:0 3px 4px rgba(0,0,0,.4)}
+#toast.award.on{animation:pinup .55s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes pinup{from{opacity:0;transform:translateX(-50%) translateY(-50px) rotate(-12deg)}to{opacity:1;transform:translateX(-50%) rotate(-1.5deg)}}
+
+/* ---------- set dressing (menu and scoreboard only, never the play screen) ---------- */
+.dress{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:0}
+#menu .wrap{position:relative;z-index:1}
+.band{position:absolute;left:0;right:0;height:22px;background-repeat:repeat-x}
+[data-board="majlis"] .band{background-image:var(--sadu)}
+.band.top{top:0}.band.bot{bottom:0}
+.checker{position:absolute;left:0;right:0;bottom:0;height:28px;background:repeating-conic-gradient(#1C1C1F 0 25%,#F4F1EA 0 50%) 0 0/28px 28px;opacity:.9}
+.canopy{position:absolute;top:-10px;width:46%;max-width:260px;height:150px;color:#10261A}
+.canopy.l{left:-20px}.canopy.r{right:-20px;transform:scaleX(-1)}
+[data-board="cork"] #menuCards .idx::after{content:"";position:absolute;top:-7px;left:50%;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ff9a9a,#c01d2e 60%,#7a0d18);box-shadow:0 3px 4px rgba(0,0,0,.35)}
+[data-board="cork"] #menuCards .idx:nth-child(2)::after{background:radial-gradient(circle at 35% 35%,#9ad0ff,#1f5fae 60%,#0d2c55)}
+[data-board="cork"] .board-inner{background:repeating-linear-gradient(180deg,rgba(255,255,255,.035) 0 2px,transparent 2px 10px),var(--board-bg)}
+[data-board="majlis"] .wood{padding:14px}
+[data-board="majlis"] #menu .lights{top:28px}
+@media (max-height:600px){.checker{display:none}#menu .wrap{padding-bottom:24px}}
+
+/* ---------- theme picker ---------- */
+.themes{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tsw{display:block;width:100%;padding:0;border:2px solid var(--chalk-3);border-radius:10px 8px 11px 9px;background:var(--surface-bg);color:var(--chalk);text-align:left;overflow:hidden}
+.tsw[aria-pressed="true"]{border:3px solid var(--focus)}
+.tsw .pv{position:relative;display:block;height:78px;border-bottom:1px solid var(--chalk-line)}
+.tsw .pv .mini{position:absolute;left:14px;right:14px;bottom:10px;height:30px;border-radius:2px;background:linear-gradient(var(--rule-red),var(--rule-red)) 0 9px/100% 2px no-repeat,var(--card);box-shadow:0 4px 8px rgba(0,0,0,.3)}
+.tsw .pv .bulbs{position:absolute;top:10px;left:14px;right:14px;display:flex;justify-content:space-between}
+.tsw .pv .bulbs i{width:9px;height:12px;border-radius:50%;background:var(--bulb);box-shadow:0 0 6px var(--bulb)}
+.tsw .pv .fr{position:absolute;left:0;right:0;top:30px;height:6px;background:var(--frame-bg)}
+.tsw .nm{display:block;padding:9px 10px 2px;font:700 18px/1.15 var(--f-display);color:var(--chalk)}
+.tsw .how{display:block;padding:0 10px 10px;font:600 13px var(--f-ui);color:var(--chalk-2)}
+.tsw.locked .pv{filter:grayscale(1) brightness(.75)}
+
+/* chalk rows */
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px dashed var(--chalk-line)}
+.row .k{color:var(--chalk-2)}
+.row .v{font:700 18px var(--f-mono)}
+.pill{display:inline-block;padding:3px 10px;border:1.5px solid var(--chalk-3);border-radius:999px;font-size:13px;color:var(--chalk-2)}
+
+/* tabs */
+.tabs{display:flex;gap:8px;margin:14px 0 6px}
+.tabs button{flex:1;min-height:44px;background:none;border:0;border-bottom:3px solid transparent;color:var(--chalk-2);font:700 20px var(--f-display)}
+.tabs button[aria-selected="true"]{color:var(--chalk);border-bottom-color:var(--bulb)}
+
+/* deck picker */
+.search{display:flex;gap:10px;align-items:center;margin:8px 0 12px}
+.deck{display:grid;grid-template-columns:30px 1fr auto;gap:12px;align-items:center;width:100%;padding:12px 4px;background:none;border:0;border-bottom:1px dashed var(--chalk-line);text-align:left;min-height:56px}
+.box{width:26px;height:26px;border:2px solid var(--chalk-2);border-radius:5px 4px 6px 4px;display:grid;place-items:center}
+.deck[aria-checked="true"] .box{background:var(--chalk);border-color:var(--chalk)}
+.deck[aria-checked="true"] .box::after{content:"";width:12px;height:7px;border-left:3px solid var(--slate);border-bottom:3px solid var(--slate);transform:rotate(-45deg) translate(1px,-2px)}
+.deck .nm{font:600 17px var(--f-ui)}
+.deck .sub{display:block;font-size:13px;color:var(--chalk-2);font-weight:400}
+.deck .ct{font:500 14px var(--f-mono);color:var(--chalk-2)}
+
+/* string lights */
+.lights{display:block;width:100%;height:40px;overflow:visible}
+.lights .wire{fill:none;stroke:var(--wire);stroke-width:2}
+.lights .cap{fill:var(--cap)}
+.lights .bulb{fill:var(--bulb-off);transform-box:fill-box;transform-origin:center}
+.lights .bulb.lit{fill:var(--bulb);filter:drop-shadow(0 0 6px rgba(245,181,68,.9))}
+.lights.run1 .bulb.lit{fill:var(--run1)}
+.lights.run2 .bulb.lit{fill:var(--run2);filter:drop-shadow(0 0 7px var(--run2))}
+.lights.run3 .bulb.lit{fill:var(--run3);filter:drop-shadow(0 0 8px var(--run3))}
+.lights.burst .bulb.lit{animation:pulse .4s ease 2}
+@keyframes pulse{50%{transform:scale(1.28)}}
+.lights.chase .bulb{animation:chase .55s ease calc(var(--i) * 55ms) 1 both}
+@keyframes chase{40%{transform:translateY(3px) scale(1.4)}}
+.lights .bulb.paper.lit[data-c="0"]{fill:#F28CA8}.lights .bulb.paper.lit[data-c="1"]{fill:#F5A25D}.lights .bulb.paper.lit[data-c="2"]{fill:#F7D66B}
+.lights .win{fill:none;stroke:rgba(0,0,0,.35);stroke-width:1}
+
+/* menu */
+#menu .wrap{display:flex;flex-direction:column;justify-content:safe center;min-height:100%;padding-top:48px}
+[data-board="majlis"] #menu .wrap{padding-top:70px}
+#menu .wrap > *{flex-shrink:0}
+#menu .wrap > .logo{margin-top:auto}
+#menu .wrap > .links{margin-bottom:auto}
+#menu .lights{position:absolute;top:6px;left:0;right:0;width:100%}
+#menu{position:absolute}
+.logo{text-align:center;margin:14px 0 4px}
+.logo h1{font:700 clamp(58px,17vw,92px)/.95 var(--f-display);letter-spacing:.01em;color:var(--logo);text-shadow:var(--logo-glow)}
+.logo svg{color:var(--logo);display:block;width:62%;max-width:300px;height:18px;margin:2px auto 0}
+.logo p{margin:10px 0 26px;color:var(--chalk-2)}
+
+/* handoff */
+.handoff{display:flex;flex-direction:column;min-height:100%;justify-content:safe center;text-align:center}
+.handoff > :first-child{margin-top:auto}.handoff > :last-child{margin-bottom:auto}
+.handoff .who{font:700 clamp(44px,12vw,76px)/1.15 var(--f-display);margin:8px 0}
+.handoff .meta{color:var(--chalk-2);font-size:16px}
+.handoff .how{max-width:420px;margin:22px auto;font-size:17px}
+.handoff .idx{max-width:420px;margin:0 auto}
+
+/* play */
+#play{overflow:hidden;padding:4px 14px 12px;gap:6px}
+.play-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px}
+.ph-team{font:700 22px/1.05 var(--f-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-sub{display:block;font:600 13px var(--f-ui);color:var(--chalk-2)}
+.ph-right{justify-self:end;text-align:right}
+.ph-score{font:700 26px/1 var(--f-mono)}
+.pause-btn{background:none;border:1.5px solid var(--chalk-3);border-radius:999px;color:var(--chalk-2);font:600 13px var(--f-ui);padding:6px 12px;margin-top:4px;min-height:34px}
+.dial{position:relative;width:78px;height:78px}
+.dial svg{width:100%;height:100%;transform:rotate(-90deg)}
+.dial .face{fill:#F3EBDD}
+.dial .ticks line{stroke:#2A2620;stroke-width:2}
+.dial .arc{fill:none;stroke:var(--timer);stroke-width:9;stroke-linecap:butt}
+.dial.low .arc{stroke:var(--miss)}
+.dial .num{position:absolute;inset:0;display:grid;place-items:center;font:700 25px var(--f-mono);color:var(--ink)}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative;padding:4px 0}
+.icard{width:min(100%,900px);min-width:0;height:100%;max-height:460px;display:grid;grid-template-rows:auto minmax(0,1fr);grid-template-columns:minmax(0,1fr);border-radius:4px;background:var(--card);box-shadow:0 3px 0 rgba(0,0,0,.1),0 22px 44px rgba(0,0,0,.5);will-change:transform}
+.icard-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 18px 7px;border-bottom:2px solid var(--rule-red);font:600 15px var(--f-ui);color:var(--ink-2)}
+.tier{display:inline-flex;gap:4px}
+.tier i{width:9px;height:9px;border-radius:50%;border:1.5px solid var(--ink-2)}
+.tier i.on{background:var(--ink-2)}
+.icard-body{position:relative;overflow:hidden;min-width:0;display:flex;align-items:center;justify-content:center;padding:10px 20px;min-height:0;background:repeating-linear-gradient(to bottom,transparent 0 35px,rgba(143,179,217,.5) 35px 36px)}
+.word{width:100%;font-family:var(--f-card);color:var(--ink);text-align:center;line-height:1.02;overflow-wrap:normal;word-break:normal;hyphens:none;text-wrap:balance}
+.word.ar{font-family:var(--f-arabic);font-weight:900;line-height:1.35}
+#deckLang{margin:0 0 10px}
+.icard.out-got{transition:transform .32s cubic-bezier(.5,0,.75,0),opacity .32s;transform:translateY(70vh) rotate(7deg);opacity:.2}
+.icard.out-pass{transition:transform .32s cubic-bezier(.5,0,.75,0),opacity .32s;transform:translateY(-70vh) rotate(-7deg);opacity:.2}
+.icard.in{animation:cardin .16s ease-out}
+@keyframes cardin{from{transform:translateX(-26px) rotate(-3deg);opacity:.25}}
+.tap-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tap-row button{min-height:66px;border-radius:12px 9px 13px 10px;font:400 22px var(--f-card)}
+.tap-pass{background:transparent;border:2.5px solid var(--miss);color:var(--miss-text)}
+.tap-got{background:var(--sage);border:2.5px solid var(--sage);color:#14200F}
+#play.tilt .tap-row{display:none}
+.tilt-note{display:none;text-align:center;font:600 14px var(--f-ui);color:var(--chalk-2)}
+#play.tilt .tilt-note{display:block}
+
+/* overlays */
+.ov{position:fixed;inset:0;display:none;place-items:center;text-align:center;z-index:20;padding:24px}
+.ov.on{display:grid}
+#flash{pointer-events:none;z-index:25;transition:opacity .25s}
+#flash.got{background:rgba(125,186,116,.94)}
+#flash.pass{background:rgba(217,83,79,.92)}
+#flash b{font:400 clamp(56px,16vmin,150px)/1 var(--f-card);color:var(--card);letter-spacing:.01em}
+#count{background:var(--slate)}
+#count .n{font:700 clamp(120px,40vmin,300px)/1 var(--f-display)}
+#count .m{max-width:460px;margin:0 auto;color:var(--chalk-2);font-size:18px}
+#relay{background:var(--slate-deep)}
+#relay .big{font:700 clamp(40px,11vmin,84px)/1.05 var(--f-display);margin:10px 0}
+#pause{background:var(--overlay)}
+#pause .inner,#tester .inner{width:min(100%,400px);display:grid;gap:14px}
+#tester{background:var(--overlay)}
+#ask{background:var(--overlay);z-index:30}
+#ask .inner{width:min(100%,400px);display:grid;gap:14px}
+.meter{position:relative;height:16px;border:2px solid var(--chalk-3);border-radius:999px;overflow:hidden}
+.meter .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--chalk-3)}
+.meter .dot{position:absolute;top:1px;width:10px;height:10px;border-radius:50%;background:var(--bulb);left:50%;transform:translateX(-50%)}
+
+/* recap */
+.res{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;width:100%;padding:11px 2px;background:none;border:0;border-bottom:1px dashed var(--chalk-line);text-align:left;min-height:50px}
+.res .mk{font:400 20px var(--f-card)}
+.res.ok .mk{color:var(--ok-text)}
+.res.no .mk{color:var(--no-text)}
+.res.no .w{color:var(--chalk-2);text-decoration:line-through;text-decoration-color:rgba(217,83,79,.6)}
+.res .w{font:600 17px var(--f-ui)}
+.res .p{font:500 14px var(--f-mono);color:var(--chalk-2)}
+.bigscore{display:flex;align-items:baseline;gap:12px;margin:6px 0 2px}
+.bigscore b{font:700 64px/1 var(--f-mono)}
+.tally{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0 2px;color:var(--chalk-2);font-size:15px}
+
+/* final */
+.stand{display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;padding:14px 0;border-bottom:1px dashed var(--chalk-line);position:relative}
+.stand .n{font:700 28px/1.1 var(--f-display);position:relative;justify-self:start;padding:4px 10px}
+.stand .s{font:700 30px var(--f-mono)}
+.ring{position:absolute;inset:-8px -14px;width:calc(100% + 28px);height:calc(100% + 16px);overflow:visible;pointer-events:none}
+.ring path{fill:none;stroke:var(--bulb);stroke-width:3;stroke-linecap:round;stroke-dasharray:600;stroke-dashoffset:600;animation:draw 1.1s .3s ease-out forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* achievements */
+.ach{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:12px 0;border-bottom:1px dashed var(--chalk-line);align-items:center}
+.ach .ic{width:30px;height:30px;border-radius:50%;border:2px dashed var(--chalk-3)}
+.ach.got .ic{border:0;background:var(--bulb);box-shadow:0 0 10px rgba(245,181,68,.7)}
+.ach .an{font:600 17px var(--f-ui)}
+.ach:not(.got) .an{color:var(--chalk-2)}
+.ach .ad{font-size:14px;color:var(--chalk-2)}
+
+/* toast */
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);opacity:0;z-index:40;background:var(--card);color:var(--ink);font:600 15px/1.35 var(--f-ui);padding:12px 16px;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.45);max-width:min(92vw,460px);pointer-events:none;transition:opacity .2s,transform .2s;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.code{font:700 22px var(--f-mono);letter-spacing:.06em;padding:12px 14px;border:2px dashed var(--chalk-3);border-radius:8px;text-align:center;-webkit-user-select:all;user-select:all}
+.empty{padding:22px 0;color:var(--chalk-2)}
+
+/* loading */
+
+@media (min-width:760px) and (min-height:560px){
+  body{background:var(--frame-bg)}
+  #app{margin:14px;height:calc(100% - 28px);border-radius:6px;box-shadow:inset 0 0 60px rgba(0,0,0,.35);background:var(--surface-bg)}
+}
+@media (orientation:landscape) and (max-height:520px){
+  .dial{width:62px;height:62px}.dial .num{font-size:20px}
+  .lights{height:28px}
+  .tap-row button{min-height:52px}
+  .ph-team{font-size:19px}
+  #hoBadge .badge{width:38px;height:38px}
+  .handoff .who{font-size:40px;margin:2px 0}
+  #hoBadge{margin:2px 0 6px}
+  .handoff .how{margin:10px auto 14px}
+}
+html[data-motion="reduced"] *,html[data-motion="reduced"] *::before,html[data-motion="reduced"] *::after{animation-duration:.001s!important;animation-delay:0s!important;animation-iteration-count:1!important;transition-duration:.001s!important}
+html[data-motion="reduced"] #count .n,html[data-motion="reduced"] .eraser{animation:none!important}
+
+</style>
+</head>
+<body>
+<div id="intro" aria-hidden="true" style="position:fixed;inset:0;z-index:9999;background:#1F2A24"></div>
+<div id="app">
+
+<section class="screen on" id="loading" aria-label="Loading"></section>
+
+<!-- MENU -->
+<section class="screen" id="menu" aria-label="Main menu">
+  <div class="dress" id="menuDress" aria-hidden="true"></div>
+  <div class="wrap">
+    <svg class="lights" id="menuLights" viewBox="0 0 400 40" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+    <div class="logo">
+      <h1>Chalkline</h1>
+      <svg viewBox="0 0 300 18" aria-hidden="true"><path d="M4 11 C 40 4, 70 15, 110 9 S 180 4, 220 10 S 280 13, 296 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".8"/></svg>
+      <p>Charades for game night. Phone on your forehead, everyone else shouting.</p>
+    </div>
+    <div class="stack" id="menuCards"></div>
+    <div class="links">
+      <button class="link" data-go="stats">Stats</button>
+      <button class="link" data-go="decks">My decks</button>
+      <button class="link" data-go="settings">Settings</button>
+      <button class="link" data-go="howto">How to play</button>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO -->
+<section class="screen" id="howto" aria-label="How to play">
+  <div class="wrap">
+    <div class="topbar"><button class="back" data-go="menu">Menu</button></div>
+    <h2 class="h2">How to play</h2>
+    <p>One player holds the phone to their forehead, screen facing out, turned sideways. Everyone else acts, hums or describes the word without saying it.</p>
+    <p><b>Tilt the phone down</b> when you guess it. <b>Tilt it up</b> to pass. If tilting doesn't suit your phone case or holder, turn on tap buttons in Settings.</p>
+    <h3 class="sh">Scoring</h3>
+    <p>Easy cards are worth 1, medium 2, hard 3. Three right in a row doubles each card's points, six in a row triples them. The string lights show your run.</p>
+    <h3 class="sh">Modes</h3>
+    <p><b>Classic.</b> Guess as many as you can before the timer runs out.</p>
+    <p><b>Sudden death.</b> No passing. The first pass ends your turn, so every card counts.</p>
+    <p><b>Relay.</b> After every 3 right answers the phone moves to the next teammate. The clock keeps running.</p>
+    <h3 class="sh">Clue styles</h3>
+    <p>With clue styles on, each card tells the clue-givers how to clue it: act it, describe it, one word, hum it, or sounds only. One word, humming and sounds are harder, so those cards score 1 extra point.</p>
+    <h3 class="sh">Arabic decks</h3>
+    <p>Four decks are in Arabic: animals, food and drink, act it out, and Gulf life. Pick them in Choose decks, or tap العربية there to see only Arabic decks. Your own decks can be in Arabic too.</p>
+    <h3 class="sh">Fixing mistakes</h3>
+    <p>After each turn you'll see every card. Tap a card to flip it between right and passed before the score is added.</p>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section class="screen" id="setup" aria-label="New game">
+  <div class="wrap">
+    <div class="topbar"><button class="back" data-go="menu">Menu</button></div>
+    <h2 class="h2">New game</h2>
+    <h3 class="sh">Mode</h3>
+    <div class="seg" id="segMode" role="group" aria-label="Mode"></div>
+    <p class="hint" id="modeHint"></p>
+    <h3 class="sh">Teams</h3>
+    <div id="teamList"></div>
+    <button class="btn quiet" id="addTeam" style="margin-top:12px">Add a team</button>
+    <h3 class="sh">Decks</h3>
+    <p id="deckSummary" class="muted"></p>
+    <button class="btn" id="openPicker">Choose decks</button>
+    <h3 class="sh">Difficulty</h3>
+    <div class="seg" id="segTier" role="group" aria-label="Difficulty"></div>
+    <p class="hint" id="tierHint"></p>
+    <h3 class="sh">Clue styles</h3>
+    <div class="seg" id="segStyles" role="group" aria-label="Clue styles"></div>
+    <p class="hint">Each card says how to clue it: act it, describe it, one word, hum it or sounds only. The last three score 1 extra point.</p>
+    <h3 class="sh">Timer</h3>
+    <div class="seg" id="segTimer" role="group" aria-label="Timer"></div>
+    <h3 class="sh">Turns per team</h3>
+    <div class="seg" id="segRounds" role="group" aria-label="Turns per team"></div>
+    <div style="margin-top:30px">
+      <button class="idx" id="startBtn"><span class="t">Start game</span><span class="s" id="startSub"></span></button>
+    </div>
+  </div>
+</section>
+
+<!-- DECK PICKER -->
+<section class="screen" id="picker" aria-label="Choose decks">
+  <div class="wrap">
+    <div class="topbar"><button class="back" id="pickerDone">Done</button><span class="muted small" id="pickCount"></span></div>
+    <h2 class="h2">Choose decks</h2>
+    <div class="search"><input class="txt" id="deckSearch" type="search" dir="auto" placeholder="Search decks or words" autocomplete="off" aria-label="Search decks or words"></div>
+    <div class="seg" id="deckLang" role="group" aria-label="Deck language"></div>
+    <div class="seg" style="margin-bottom:6px"><button id="pickAll">Select all</button><button id="pickNone">Clear</button></div>
+    <div id="deckList" role="list"></div>
+  </div>
+</section>
+
+<!-- HANDOFF -->
+<section class="screen" id="handoff" aria-label="Next turn">
+  <div class="wrap handoff">
+    <div class="meta" id="hoMeta"></div>
+    <div id="hoBadge" aria-hidden="true"></div>
+    <div class="who" id="hoWho"></div>
+    <div class="meta" id="hoSub"></div>
+    <div class="how" id="hoHow"></div>
+    <button class="idx" id="readyBtn"><span class="t">Ready</span><span class="s" id="readySub"></span></button>
+    <div style="max-width:420px;margin:16px auto 0;display:grid;gap:8px">
+      <button class="btn quiet" id="hoInput"></button>
+      <button class="btn quiet" id="hoQuit">End game</button>
+    </div>
+  </div>
+</section>
+
+<!-- PLAY -->
+<section class="screen" id="play" aria-label="Playing">
+  <svg class="lights" id="playLights" viewBox="0 0 400 40" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+  <div class="play-head">
+    <div><span class="ph-team" id="phTeam"></span><span class="ph-sub" id="phSub"></span></div>
+    <div class="dial" id="dial" role="timer" aria-live="off">
+      <svg viewBox="0 0 100 100" aria-hidden="true">
+        <circle class="face" cx="50" cy="50" r="48"/>
+        <g class="ticks" id="ticks"></g>
+        <circle class="arc" id="arc" cx="50" cy="50" r="39"/>
+      </svg>
+      <div class="num" id="dialNum">60</div>
+    </div>
+    <div class="ph-right"><div class="ph-score" id="phScore">0</div><button class="pause-btn" id="pauseBtn">Pause</button></div>
+  </div>
+  <div class="stage">
+    <div class="icard" id="icard">
+      <div class="icard-head"><span class="style-chip" id="cStyle"></span><span class="cat" id="cCat"></span><span class="tier" id="cTier" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div class="icard-body"><div class="word" id="cWord" aria-live="polite"></div></div>
+    </div>
+  </div>
+  <div class="tap-row"><button class="tap-pass" id="tapPass">Pass</button><button class="tap-got" id="tapGot">Got it</button></div>
+  <div class="tilt-note">Tilt down for got it, up to pass</div>
+</section>
+
+<!-- RECAP -->
+<section class="screen" id="recap" aria-label="Turn recap">
+  <div class="wrap">
+    <div class="meta muted" id="rcMeta"></div>
+    <h2 class="h2" id="rcTitle"></h2>
+    <div class="bigscore"><b id="rcScore">0</b><span class="muted">points</span></div>
+    <div class="tally" id="rcTally"></div>
+    <p class="small muted">Tap a card to flip it between right and passed.</p>
+    <div id="rcList"></div>
+    <div style="margin-top:24px"><button class="idx" id="rcNext"><span class="t" id="rcNextT"></span><span class="s" id="rcNextS"></span></button></div>
+  </div>
+</section>
+
+<!-- SCOREBOARD -->
+<section class="screen" id="board" aria-label="Scoreboard">
+  <div class="wrap">
+    <div class="meta muted" id="bdMeta"></div>
+    <h2 class="h2">Scoreboard</h2>
+    <div class="wood"><div class="board-inner" id="bdRows"></div></div>
+    <div style="margin-top:26px"><button class="idx" id="bdNext"><span class="t" id="bdNextT"></span><span class="s" id="bdNextS"></span></button></div>
+  </div>
+</section>
+
+<!-- FINAL -->
+<section class="screen" id="final" aria-label="Final scores">
+  <div class="wrap">
+    <div class="meta muted" id="fnMeta"></div>
+    <h2 class="h2" id="fnTitle"></h2>
+    <div id="fnList" style="margin-top:10px"></div>
+    <div class="tally" id="fnTally" style="margin-top:16px"></div>
+    <div class="hl" id="fnHigh"></div>
+    <div class="stack" style="margin-top:26px">
+      <button class="idx" id="fnAgain"><span class="t">Play again</span><span class="s">Same teams and decks, fresh cards</span></button>
+    </div>
+    <button class="btn" style="margin-top:14px" id="fnShare">Share results</button>
+    <button class="btn quiet" style="margin-top:12px" data-go="menu">Back to menu</button>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="screen" id="stats" aria-label="Stats">
+  <div class="wrap">
+    <div class="topbar"><button class="back" data-go="menu">Menu</button></div>
+    <h2 class="h2">Your game nights</h2>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tabS" aria-selected="true" data-tab="s">Stats</button>
+      <button role="tab" id="tabA" aria-selected="false" data-tab="a">Awards</button>
+      <button role="tab" id="tabH" aria-selected="false" data-tab="h">History</button>
+    </div>
+    <div id="statsBody"></div>
+  </div>
+</section>
+
+<!-- DECKS -->
+<section class="screen" id="decks" aria-label="My decks">
+  <div class="wrap">
+    <div class="topbar"><button class="back" data-go="menu">Menu</button></div>
+    <h2 class="h2">My decks</h2>
+    <p class="muted">Inside jokes, family names, this week's homework. Your decks sync across your devices when sync is on.</p>
+    <div id="myDecks" style="margin:10px 0 18px"></div>
+    <button class="idx" id="newDeck"><span class="t">New deck</span><span class="s">At least 10 words, one per line</span></button>
+  </div>
+</section>
+
+<!-- DECK EDITOR -->
+<section class="screen" id="editor" aria-label="Edit deck">
+  <div class="wrap">
+    <div class="topbar"><button class="back" data-go="decks">My decks</button><span class="muted small" id="edCount"></span></div>
+    <h2 class="h2" id="edTitle">New deck</h2>
+    <label class="lab" for="edName" style="margin-top:16px">Deck name</label>
+    <input class="txt" id="edName" dir="auto" maxlength="32" placeholder="Family favourites">
+    <label class="lab" for="edWords" style="margin-top:22px">Words, one per line</label>
+    <textarea class="txt" id="edWords" dir="auto" placeholder="Grandma's soup&#10;The road trip&#10;Uncle's dance move"></textarea>
+    <p class="hint" id="edHint"></p>
+    <div style="display:grid;gap:12px;margin-top:16px">
+      <button class="idx" id="edSave"><span class="t">Save deck</span><span class="s">It shows up in the deck list</span></button>
+      <button class="btn danger" id="edDelete">Delete deck</button>
+    </div>
+  </div>
+</section>
+
+<!-- SETTINGS -->
+<section class="screen" id="settings" aria-label="Settings">
+  <div class="wrap">
+    <div class="topbar"><button class="back" data-go="menu">Menu</button></div>
+    <h2 class="h2">Settings</h2>
+    <h3 class="sh">Board</h3>
+    <div class="themes" id="themeList"></div>
+    <h3 class="sh">Animations</h3>
+    <div class="seg" id="segMotion" role="group" aria-label="Animations"></div>
+    <p class="hint" id="motionHint"></p>
+    <h3 class="sh">Answering</h3>
+    <div class="seg" id="segInput" role="group" aria-label="How to answer"></div>
+    <p class="hint" id="inputHint"></p>
+    <h3 class="sh">Tilt direction</h3>
+    <div class="seg" id="segFlip" role="group" aria-label="Tilt direction"></div>
+    <h3 class="sh">Tilt sensitivity</h3>
+    <div class="seg" id="segSens" role="group" aria-label="Tilt sensitivity"></div>
+    <button class="btn" id="testTilt" style="margin-top:14px">Test tilt</button>
+    <h3 class="sh">Sound and vibration</h3>
+    <div class="seg" id="segSound" role="group" aria-label="Sound"></div>
+    <div class="seg" id="segHaptics" role="group" aria-label="Vibration" style="margin-top:8px"></div>
+    <h3 class="sh">Sync across devices</h3>
+    <p class="muted small" id="syncStatus"></p>
+    <div id="syncBox"></div>
+    <h3 class="sh">Reset</h3>
+    <button class="btn danger" id="resetAll">Erase progress on this device</button>
+    <p class="small muted" style="margin-top:22px">Chalkline has no ads, no purchases and no tracking.</p>
+  </div>
+</section>
+
+</div>
+
+<!-- overlays -->
+<div class="ov" id="count" aria-live="assertive"><div class="eraser" id="eraser" aria-hidden="true"></div><div><div class="n" id="countN">3</div><p class="m" id="countM"></p></div></div>
+<div class="ov" id="flash" aria-hidden="true"><b id="flashT"></b></div>
+<div class="ov" id="relay"><div><p class="muted" style="font-size:18px">Pass the phone to</p><div class="big" id="relayWho"></div><p class="muted" id="relayNote">The clock is still running</p></div></div>
+<div class="ov" id="pause"><div class="inner"><h2 class="h2">Paused</h2><p class="muted" id="pauseNote"></p><button class="idx" id="resumeBtn"><span class="t">Keep playing</span><span class="s">A short countdown first</span></button><button class="btn" id="endTurnBtn">End this turn</button></div></div>
+<div class="ov" id="tester"><div class="inner"><h2 class="h2">Test tilt</h2><p class="muted">Hold the phone on your forehead, screen facing out, then tilt down and up.</p><div class="meter"><div class="mid"></div><div class="dot" id="tDot"></div></div><div style="display:flex;justify-content:space-between" class="small muted"><span>Pass</span><span>Got it</span></div><p id="tOut" style="font:400 30px var(--f-card);min-height:40px;margin:6px 0"></p><button class="btn" id="tClose">Done</button></div></div>
+<div class="ov" id="ask" role="dialog" aria-modal="true" aria-labelledby="askMsg"><div class="inner"><p id="askMsg" style="font-size:19px;margin:0 0 6px"></p><button class="idx" id="askYes"><span class="t" id="askYesT"></span><span class="s" id="askYesS"></span></button><button class="btn" id="askNo">Cancel</button></div></div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!--__NATIVE_SCRIPTS__-->
+<script>
+/*__WORDS__*/
+</script>
+<script>
+"use strict";
+/* ============================================================
+   Chalkline — charades for game night
+   Single-file game. Native shell: Capacitor (iOS).
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const now = () => performance.now();
+
+/* ---------- storage (never throws) ---------- */
+const store = {
+  get(k, d){ try { const v = localStorage.getItem('cl1.'+k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } },
+  set(k, v){ try { localStorage.setItem('cl1.'+k, JSON.stringify(v)); return true; } catch(e){ return false; } },
+  del(k){ try { localStorage.removeItem('cl1.'+k); } catch(e){} }
+};
+
+/* ---------- seeded PRNG (same family as Live Wire) ---------- */
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function hashStr(s){ let h = 2166136261 >>> 0; for (let i = 0; i < s.length; i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+function shuffle(arr, rnd){ for (let i = arr.length - 1; i > 0; i--){ const j = Math.floor(rnd() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; }
+function uid(n=10){ const a = new Uint8Array(n); (crypto && crypto.getRandomValues) ? crypto.getRandomValues(a) : a.forEach((_,i)=>a[i]=Math.random()*256|0); return Array.from(a, b => (b % 36).toString(36)).join(''); }
+const todayKey = () => new Date().toISOString().slice(0,10); // UTC: same daily deck for everyone
+
+/* ---------- decks ---------- */
+const TIER_PTS = {1:1, 2:2, 3:3};
+let BUILTIN = [];
+function buildBuiltins(){
+  BUILTIN = WORDBANK.map(c => {
+    const words = [];
+    c.e.split('|').forEach(w => w && words.push([w,1]));
+    c.m.split('|').forEach(w => w && words.push([w,2]));
+    c.h.split('|').forEach(w => w && words.push([w,3]));
+    return { id:c.id, name:c.name, words, custom:false };
+  });
+}
+function customDecks(){ const m = store.get('decks', {}); return Object.values(m).filter(d => !d.del).sort((a,b)=>a.name.localeCompare(b.name)); }
+function allDecks(){ return BUILTIN.concat(customDecks().map(d => ({ id:d.id, name:d.name, words:d.words.map(w => [w,2]), custom:true }))); }
+function deckById(id){ return allDecks().find(d => d.id === id); }
+let _deckCache = null;
+function wordFor(key){
+  if (!_deckCache) { _deckCache = {}; allDecks().forEach(d => _deckCache[d.id] = d); }
+  const i = key.lastIndexOf(':'); const d = _deckCache[key.slice(0,i)]; if (!d) return null;
+  const w = d.words[+key.slice(i+1)]; return w ? { w:w[0], p:TIER_PTS[w[1]], tier:w[1], deck:d.name, deckId:d.id } : null;
+}
+function invalidateDecks(){ _deckCache = null; }
+
+/* Seen-history: unseen words are served first, so decks don't repeat until exhausted. */
+function loadSeen(){ return store.get('seen', {}); }
+function markSeen(key){
+  const i = key.lastIndexOf(':'); const id = key.slice(0,i), n = +key.slice(i+1);
+  const s = loadSeen(); (s[id] = s[id] || []); if (!s[id].includes(n)) s[id].push(n); store.set('seen', s);
+}
+function buildDeck(deckIds, tier, seed){
+  const rnd = mulberry32(seed >>> 0); const pool = [];
+  deckIds.forEach(id => { const d = deckById(id); if (!d) return;
+    d.words.forEach((w,i) => { if (d.custom || tier === 'W' || ({E:1,M:2,H:3})[tier] === w[1]) pool.push(id+':'+i); }); });
+  const seen = loadSeen(); const isSeen = k => { const i = k.lastIndexOf(':'); return (seen[k.slice(0,i)]||[]).includes(+k.slice(i+1)); };
+  let fresh = pool.filter(k => !isSeen(k)), old = pool.filter(isSeen);
+  if (fresh.length < 40) { // pool nearly exhausted: start these decks over
+    const drop = new Set(pool); deckIds.forEach(id => { if (seen[id]) seen[id] = seen[id].filter(n => !drop.has(id+':'+n)); });
+    store.set('seen', seen); fresh = pool.slice(); old = [];
+  }
+  return shuffle(fresh, rnd).concat(shuffle(old, rnd));
+}
+function dailyDeck(key){
+  const rnd = mulberry32(hashStr('chalkline-daily-' + key)); const pool = [];
+  BUILTIN.forEach(d => { if (d.id !== 'kids' && !d.id.startsWith('ar_')) d.words.forEach((w,i) => pool.push(d.id+':'+i)); });
+  return shuffle(pool, rnd).slice(0, 40);
+}
+
+/* ---------- settings / profile ---------- */
+const DEFAULT_SETTINGS = { input:'auto', flip:false, sens:'normal', sound:true, haptics:true, board:'chalk', boardAt:0, motion:'system' };
+let settings = Object.assign({}, DEFAULT_SETTINGS, store.get('settings', {}));
+const saveSettings = () => store.set('settings', settings);
+const DEFAULT_SETUP = { mode:'classic', tier:'M', timer:60, rounds:2, styles:true, decks:['animals','food','movies','actions'],
+  teams:[{name:'Red team', players:''},{name:'Blue team', players:''}] };
+let setup = Object.assign({}, DEFAULT_SETUP, store.get('setup', {}));
+const saveSetup = () => store.set('setup', setup);
+
+function deviceId(){ let d = store.get('device'); if (!d){ d = 'd' + uid(12); store.set('device', d); } return d; }
+const blankStats = () => ({ games:0, turns:0, cards:0, correct:0, passes:0, bestStreak:0, bestTurn:0, sdBest:0, decksMade:0, deck:{}, daily:{}, flags:{}, ach:{} });
+let stats = Object.assign(blankStats(), store.get('stats', {}));
+const saveStats = () => store.set('stats', stats);
+let history = store.get('history', []);
+
+/* Combine this device's stats with other devices' slices from sync (grow-only counters). */
+function merged(){
+  const parts = [stats].concat(Object.values(store.get('remote', {})).map(r => r && r.stats).filter(Boolean));
+  const m = blankStats();
+  parts.forEach(p => {
+    ['games','turns','cards','correct','passes','decksMade'].forEach(k => m[k] += +p[k] || 0);
+    ['bestStreak','bestTurn','sdBest'].forEach(k => m[k] = Math.max(m[k], +p[k] || 0));
+    Object.entries(p.deck || {}).forEach(([id,v]) => { const c = m.deck[id] || [0,0]; m.deck[id] = [c[0]+(+v[0]||0), c[1]+(+v[1]||0)]; });
+    Object.entries(p.daily || {}).forEach(([d,v]) => m.daily[d] = Math.max(m.daily[d] || 0, +v || 0));
+    Object.assign(m.flags, p.flags || {});
+    Object.entries(p.ach || {}).forEach(([k,t]) => m.ach[k] = Math.min(m.ach[k] || Infinity, t));
+  });
+  return m;
+}
+function dailyStreak(daily){
+  let n = 0; const d = new Date(todayKey() + 'T00:00:00Z');
+  if (!daily[todayKey()]) d.setUTCDate(d.getUTCDate() - 1);
+  while (daily[d.toISOString().slice(0,10)] != null) { n++; d.setUTCDate(d.getUTCDate() - 1); }
+  return n;
+}
+
+/* ---------- achievements ---------- */
+const ACH = [
+  ['first',   'First game night', 'Finish a full game',                 m => m.games >= 1],
+  ['run5',    'Warming up',       'Get 5 right in a row',               m => m.bestStreak >= 5],
+  ['run10',   'All lights on',    'Get 10 right in a row',              m => m.bestStreak >= 10],
+  ['clean',   'Clean sheet',      'Get 8 right in one turn without passing', m => !!m.flags.clean],
+  ['sd10',    'Nerves of steel',  'Last 10 cards in Sudden death',      m => m.sdBest >= 10],
+  ['relay3',  'Full relay',       'Pass the phone to a third teammate in Relay', m => !!m.flags.relay3],
+  ['hard6',   'Big brain',        'Get 6 hard cards right in one turn', m => !!m.flags.hard6],
+  ['turn20',  'Twenty',           'Score 20 points in one turn',        m => m.bestTurn >= 20],
+  ['daily1',  'Daily habit',      'Play a daily deck',                  m => Object.keys(m.daily).length >= 1],
+  ['daily7',  'Seven days',       'Play 7 daily decks',                 m => Object.keys(m.daily).length >= 7],
+  ['c100',    'Century',          '100 right answers in total',         m => m.correct >= 100],
+  ['c1000',   'Thousand club',    '1,000 right answers in total',       m => m.correct >= 1000],
+  ['explore', 'Explorer',         'Play cards from 8 different decks',  m => Object.keys(m.deck).length >= 8],
+  ['maker',   'Deck maker',       'Make your own deck',                 m => m.decksMade >= 1],
+  ['range',   'Full range',       'Get all five clue styles right in one game', m => !!m.flags.range],
+];
+function checkAch(){
+  const m = merged(); const fresh = [];
+  ACH.forEach(([id,name,,test]) => { if (!m.ach[id] && !stats.ach[id] && test(m)) { stats.ach[id] = Date.now(); fresh.push(name); } });
+  if (fresh.length) saveStats();
+  return fresh;
+}
+
+/* ---------- Arabic ---------- */
+const isArabic = t => /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/.test(t);
+const isArDeck = id => id.startsWith('ar_') || (id.startsWith('u_') && (() => { const d = deckById(id); return !!(d && d.words.some(w => isArabic(w[0]))); })());
+// Search key: case-insensitive; Arabic hamza/alef forms, taa marbuta, alef maqsura and harakat folded (same rule as tools/build_words.py).
+function fold(t){
+  return String(t).toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[\u0622\u0623\u0625\u0671]/g, '\u0627').replace(/\u0629/g, '\u0647').replace(/\u0649/g, '\u064A');
+}
+let pickLang = 'all';
+
+/* ---------- clue styles ---------- */
+const STYLE_INFO = { act:['Act it',0], describe:['Describe it',0], one:['One word',1], hum:['Hum it',1], sounds:['Sounds only',1] };
+const HUMMABLE = new Set(['music','movies','celebrate']);
+const SOUNDY = new Set(['animals','actions','sports','house','nature','kids','uae','ar_animals','ar_actions','ar_gulf']);
+function stylePool(deckId){
+  const p = ['act','act','act','describe','describe'];
+  if (deckId !== 'kids') p.push('one');
+  if (HUMMABLE.has(deckId)) p.push('hum','hum');
+  if (SOUNDY.has(deckId)) p.push('sounds');
+  return p;
+}
+function pickStyle(s, w){
+  if (!s.styles) return null;
+  const pool = stylePool(w.deckId);
+  const r = s.daily ? mulberry32(hashStr(s.dailyKey + ':' + s.ptr))() : Math.random(); // daily: same styles for everyone
+  return pool[Math.floor(r * pool.length)];
+}
+
+/* ---------- team badges (chalk-drawn SVG) ---------- */
+const BADGES = [
+  ['Star',  '<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>'],
+  ['Moon',  '<path d="M15.5 3.5a8.5 8.5 0 1 0 5 13 7 7 0 0 1-5-13z"/>'],
+  ['Bolt',  '<path d="M13 2L5 13.5h6L10 22l9-12h-6.5z"/>'],
+  ['Crown', '<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5z"/>'],
+  ['Heart', '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.5 4.3 4.3 0 0 1 19.5 10C19.5 15.4 12 20 12 20z"/>'],
+  ['Flame', '<path d="M12 22c-4 0-6.5-2.7-6.5-6.2 0-4.5 4.5-6.3 4.2-11.3 3.4 2 5.5 5 5 8.3 1-.6 1.7-1.6 2-2.8 1.4 1.6 1.8 3.3 1.8 5.3 0 3.8-2.8 6.7-6.5 6.7z"/>'],
+  ['Palm',  '<path d="M12 22c0-6 .5-9 1-12M13 10c-2-3-6-3.5-8-2 2.5 0 5 .8 8 2zm0 0c1.5-3.5 5.5-4.5 8-3-2.6.3-5.3 1.3-8 3zm0 0c-1-3.5 1-6.5 3-7.5-1 2-2 4.5-3 7.5z"/>'],
+  ['Sun',   '<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>']
+];
+const badgeSvg = (i, cls='badge') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${BADGES[((+i||0) % BADGES.length + BADGES.length) % BADGES.length][1]}</svg>`;
+const teamBadge = (t, i) => t.badge != null ? t.badge : i;
+
+/* ---------- board themes (colours live in tools/themes.py) ---------- */
+const BOARDS = [
+  { id:'chalk',  name:'Classroom chalkboard', lights:'bulb',    how:'Ready from the start',               test:() => true },
+  { id:'cork',   name:'Diner corkboard',      lights:'bulb',    how:'Finish 3 games',                     test:m => m.games >= 3 },
+  { id:'garden', name:'Garden party',         lights:'paper',   how:'Play 3 daily decks',                 test:m => Object.keys(m.daily).length >= 3 },
+  { id:'majlis', name:'Desert-night majlis',  lights:'lantern', how:'Play 25 cards from UAE & Gulf life', test:m => ((m.deck.uae || [0])[0] || 0) >= 25 },
+];
+const boardDef = id => BOARDS.find(b => b.id === id);
+function currentBoard(){ const b = boardDef(settings.board); return b && b.test(merged()) ? b : BOARDS[0]; }
+function canopy(side){
+  const leaves = [[30,40,38,16,-30],[70,22,44,18,-10],[115,30,40,15,15],[155,18,36,14,30],[52,70,36,14,-40],[100,62,42,15,5],[145,58,34,13,35],[195,30,30,12,40],[25,95,30,12,-55],[80,100,30,11,-20]];
+  return `<svg class="canopy ${side}" viewBox="0 0 260 150" aria-hidden="true"><path d="M-10 6 C 60 10, 130 0, 260 4" stroke="currentColor" stroke-width="7" fill="none"/>` +
+    leaves.map(([x,y,rx,ry,r],i) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" transform="rotate(${r} ${x} ${y})" fill="currentColor" opacity="${(0.75 + (i % 3) * 0.1).toFixed(2)}"/>`).join('') + '</svg>';
+}
+function renderDress(id){
+  $('#menuDress').innerHTML = id === 'majlis' ? '<div class="band top"></div><div class="band bot"></div>'
+    : id === 'cork' ? '<div class="checker"></div>'
+    : id === 'garden' ? canopy('l') + canopy('r') : '';
+}
+function applyBoard(){
+  const b = currentBoard();
+  document.documentElement.dataset.board = b.id;
+  drawLights($('#menuLights'), 10, b.lights); setLights($('#menuLights'), 10);
+  renderDress(b.id);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--slate').trim() || '#1F2A24');
+}
+function setBoard(id){ settings.board = id; settings.boardAt = Date.now(); saveSettings(); applyBoard(); if (Sync.cfg()) Sync.run('board'); }
+function checkBoards(){
+  const m = merged(), seen = store.get('boardsSeen', ['chalk']), fresh = [];
+  BOARDS.forEach(b => { if (!seen.includes(b.id) && b.test(m)) { seen.push(b.id); fresh.push(b.name); } });
+  if (fresh.length) store.set('boardsSeen', seen);
+  return fresh;
+}
+
+/* ---------- motion preference ---------- */
+const reduceMQ = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+function motionReduced(){ return settings.motion === 'reduced' || (settings.motion !== 'full' && !!(reduceMQ && reduceMQ.matches)); }
+function applyMotion(){ document.documentElement.dataset.motion = motionReduced() ? 'reduced' : 'full'; }
+if (reduceMQ && reduceMQ.addEventListener) reduceMQ.addEventListener('change', () => { applyMotion(); if (current === 'settings') renderMotionHint(); });
+
+/* ---------- final-screen confetti: one canvas, one rAF loop, capped particles ---------- */
+const Confetti = {
+  raf:0,
+  run(colors){
+    if (motionReduced()) return;
+    const c = $('#confetti'), W = innerWidth, H = innerHeight, dpr = Math.min(2, window.devicePixelRatio || 1);
+    c.width = Math.round(W * dpr); c.height = Math.round(H * dpr); c.style.display = 'block';
+    const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const cs = getComputedStyle(document.documentElement);
+    const chalk = cs.getPropertyValue('--chalk').trim() || '#EDEBE4';
+    const pal = colors.filter(Boolean).concat([cs.getPropertyValue('--card').trim(), cs.getPropertyValue('--bulb').trim()]).filter(Boolean);
+    const N = 90, P = [];
+    for (let i = 0; i < N; i++) { const dust = i % 3 === 0;
+      P.push({ x:W * (.12 + Math.random() * .76), y:H * .3 + Math.random() * 40, vx:(Math.random() - .5) * .6, vy:-(.3 + Math.random() * .6),
+        r:Math.random() * 6.28, vr:(Math.random() - .5) * .014, w:dust ? 2.6 : 6 + Math.random() * 6, h:dust ? 2.6 : 3 + Math.random() * 4, c:dust ? chalk : pal[i % pal.length], dust }); }
+    const t0 = performance.now(); let last = t0; cancelAnimationFrame(this.raf);
+    const step = t => {
+      const dt = Math.min(32, t - last); last = t; const age = t - t0;
+      ctx.clearRect(0, 0, W, H); ctx.globalAlpha = age > 2000 ? Math.max(0, 1 - (age - 2000) / 600) : 1;
+      for (const p of P) {
+        p.vy += 0.0011 * dt; p.vx *= 0.995; p.x += p.vx * dt; p.y += p.vy * dt; p.r += p.vr * dt; ctx.fillStyle = p.c;
+        if (p.dust) ctx.fillRect(p.x, p.y, p.w, p.h);
+        else { ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h); ctx.restore(); }
+      }
+      if (age < 2600) this.raf = requestAnimationFrame(step); else { ctx.clearRect(0, 0, W, H); c.style.display = 'none'; }
+    };
+    this.raf = requestAnimationFrame(step);
+  }
+};
+
+/* ---------- launch intro ----------
+   Cold start only. The native splash is a blank slate board (#1F2A24), and #intro paints the same
+   board from the first frame, so there is no flash. Chalk then writes the logo exactly where the
+   menu logo sits, and the overlay crossfades into the player's board while the menu cards deal in.
+   Modes: full (first launch, ~2.1 s), short (later launches, ~0.75 s), reduced (250 ms fade),
+   resume (a game is saved mid-turn: 200 ms fade, straight to Resume). A tap anywhere skips. */
+const Intro = {
+  log:{ mode:null, start:0, end:0 }, anims:[], el:null, done:false,
+  mode(){
+    if (motionReduced()) return 'reduced';
+    if (session && session.status === 'playing') return 'resume';
+    return store.get('introSeen', false) ? 'short' : 'full';
+  },
+  measure(){
+    const h1 = $('#menu .logo h1'), node = h1.firstChild, cs = getComputedStyle(h1);
+    const probe = document.createElement('span'); probe.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+    h1.appendChild(probe); const base = probe.getBoundingClientRect().top; probe.remove();
+    const r = document.createRange(), chars = [];
+    for (let i = 0; i < node.length; i++) { r.setStart(node, i); r.setEnd(node, i + 1); const b = r.getBoundingClientRect(); chars.push({ c:node.data[i], x:b.left, w:b.width }); }
+    const u = $('#menu .logo svg').getBoundingClientRect();
+    return { chars, base, size:parseFloat(cs.fontSize), family:cs.fontFamily, ls:cs.letterSpacing, u };
+  },
+  build(m, withChalk){
+    const ns = 'http://www.w3.org/2000/svg', F = m.size;
+    const svg = document.createElementNS(ns, 'svg'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('class', 'main');
+    const letters = m.chars.map(ch => {
+      const mk = cls => { const t = document.createElementNS(ns, 'text'); t.setAttribute('class', cls); t.setAttribute('x', ch.x); t.setAttribute('y', m.base);
+        t.style.font = `700 ${F}px ${m.family}`; t.style.letterSpacing = m.ls; t.textContent = ch.c; svg.appendChild(t); return t; };
+      const ls = mk('ls'); ls.style.strokeWidth = (F * 0.018).toFixed(2); ls.style.strokeDasharray = `${F * 5} ${F * 5}`; ls.style.strokeDashoffset = F * 5;
+      return { ls, lf:mk('lf'), x:ch.x, w:ch.w };
+    });
+    // underline: same viewBox and path as the menu's, at the menu's measured box
+    // a positioned page element like the menu's, so both snap to device pixels the same way
+    const us = document.createElementNS(ns, 'svg'); us.setAttribute('class', 'uls'); us.setAttribute('viewBox', '0 0 300 18');
+    Object.assign(us.style, { left:m.u.left + 'px', top:m.u.top + 'px', width:m.u.width + 'px', height:m.u.height + 'px' });
+    const up = document.createElementNS(ns, 'path'); up.setAttribute('class', 'ul'); up.setAttribute('d', 'M4 11 C 40 4, 70 15, 110 9 S 180 4, 220 10 S 280 13, 296 7');
+    up.style.strokeDasharray = '320 320'; up.style.strokeDashoffset = '320'; us.appendChild(up);
+    this.el.appendChild(svg); this.el.appendChild(us);
+    let chalk = null, dust = [];
+    if (withChalk) {
+      chalk = document.createElement('div'); chalk.className = 'chalk';
+      chalk.style.width = Math.max(7, F * 0.085) + 'px'; chalk.style.height = Math.max(26, F * 0.42) + 'px';
+      this.el.appendChild(chalk);
+      for (let i = 0; i < 16; i++) { const d = document.createElement('div'); d.className = 'dust'; this.el.appendChild(d); dust.push(d); }
+    }
+    return { letters, up, us, chalk, dust };
+  },
+  ulPoint(m, t){ // point on the underline path at fraction t, in page px (viewBox meet scaling)
+    const s = Math.min(m.u.width / 300, m.u.height / 18), ox = m.u.left + (m.u.width - 300 * s) / 2, oy = m.u.top + (m.u.height - 18 * s) / 2;
+    const p = this._ulPath || (this._ulPath = (() => { const q = document.createElementNS('http://www.w3.org/2000/svg', 'path'); q.setAttribute('d', 'M4 11 C 40 4, 70 15, 110 9 S 180 4, 220 10 S 280 13, 296 7'); return q; })());
+    const pt = p.getPointAtLength(p.getTotalLength() * t); return { x: ox + pt.x * s, y: oy + pt.y * s };
+  },
+  a(el, kf, o){ const an = el.animate(kf, Object.assign({ fill:'both', easing:'ease-out' }, o)); this.anims.push(an); return an; },
+  async start(){
+    this.el = $('#intro'); const mode = this.mode(); this.log.mode = mode;
+    const fontWait = Promise.race([document.fonts && document.fonts.load ? document.fonts.load('700 80px ' + getComputedStyle(document.documentElement).getPropertyValue('--f-display')) : Promise.resolve(), new Promise(r => setTimeout(r, 400))]).catch(() => {});
+    if (mode === 'full' || mode === 'short') await fontWait;
+    show('menu');
+    this.el.addEventListener('pointerdown', e => this.skip(e), { capture:true });
+    window.addEventListener('keydown', this._key = e => { if (['Enter',' ','Escape'].includes(e.key)) this.skip(e); });
+    this.log.start = now();
+    if (mode === 'reduced' || mode === 'resume') { this.fadeOut(mode === 'resume' ? 200 : 250, 0, false); return; }
+    let m; try { m = this.measure(); } catch(e) { this.fadeOut(250, 0, true); return; }
+    const full = mode === 'full', B = this.build(m, full), F = m.size, n = B.letters.length;
+    const t0 = full ? 120 : 60;
+    // letter windows proportional to width
+    const totalW = B.letters.reduce((a, l) => a + l.w, 0), span = full ? 1100 : 420;
+    let t = t0; const marks = [];
+    B.letters.forEach((l, i) => {
+      const d = full ? span * l.w / totalW : 200, at = full ? t : t0 + i * (span - 200) / Math.max(1, n - 1);
+      if (full) {
+        this.a(l.ls, [{ strokeDashoffset:F * 5 }, { strokeDashoffset:0 }], { delay:at, duration:d * 1.15, easing:'linear' });
+        this.a(l.lf, [{ opacity:0 }, { opacity:1 }], { delay:at + d * 0.55, duration:d * 0.7 + 120 });
+        this.a(l.ls, [{ opacity:1 }, { opacity:0 }], { delay:at + d, duration:260, composite:'replace' });
+      } else {
+        l.ls.style.display = 'none';
+        this.a(l.lf, [{ opacity:0, transform:'translateY(4px)' }, { opacity:1, transform:'none' }], { delay:at, duration:d });
+      }
+      marks.push({ at, d, x:l.x, w:l.w });
+      t += full ? d : 0;
+    });
+    const tU = full ? t0 + span : t0 + span - 120, dU = full ? 300 : 220;
+    this.a(B.up, [{ strokeDashoffset:320 }, { strokeDashoffset:0 }], { delay:tU, duration:dU, easing:'ease-in-out' });
+    const tFade = full ? tU + dU + 80 : tU + dU + 30, dFade = full ? 400 : 260;
+    if (full) {
+      // chalk stick follows the writing: a wobble per letter, then the underline, then lifts off
+      const T = tFade + 200, kf = [], rot = 'rotate(24deg)', h = parseFloat(B.chalk.style.height), w = parseFloat(B.chalk.style.width);
+      const at = (x, y, ms, extra='') => kf.push({ offset: Math.min(1, ms / T), transform:`translate(${(x - w / 2).toFixed(1)}px,${(y - h).toFixed(1)}px) ${rot} ${extra}`, opacity:1 });
+      const p0 = `translate(${m.chars[0].x - w}px,${m.base - h - F * 0.4}px) ${rot}`;
+      kf.push({ offset:0, transform:p0, opacity:0 }, { offset:(t0 - 70) / T, transform:p0, opacity:0 }); // hold: the first frames stay a blank board
+      marks.forEach((k, i) => { const top = m.base - F * 0.62, bot = m.base - F * 0.08;
+        at(k.x + k.w * 0.15, i % 2 ? bot : top, k.at); at(k.x + k.w * 0.55, i % 2 ? top : bot, k.at + k.d * 0.5); at(k.x + k.w * 0.95, (top + bot) / 2, k.at + k.d * 0.95); });
+      for (let j = 0; j <= 6; j++) { const p = this.ulPoint(m, j / 6); at(p.x, p.y, tU + dU * j / 6); }
+      const pe = this.ulPoint(m, 1);
+      kf.push({ offset:Math.min(1, (tU + dU + 260) / T), transform:`translate(${pe.x + F * 0.5}px,${pe.y - h - F * 0.7}px) rotate(40deg)`, opacity:0 });
+      kf.push({ offset:1, transform:`translate(${pe.x + F * 0.5}px,${pe.y - h - F * 0.7}px) rotate(40deg)`, opacity:0 });
+      this.a(B.chalk, kf, { duration:T, easing:'linear' });
+      // chalk dust puff at the end of the underline (16 particles, made once)
+      B.dust.forEach((d, i) => { const ang = -Math.PI * (0.1 + 0.8 * ((i * 37) % 16) / 16), dist = F * (0.25 + ((i * 53) % 10) / 18), sz = 0.6 + ((i * 29) % 7) / 6;
+        this.a(d, [{ transform:`translate(${pe.x}px,${pe.y}px) scale(${sz})`, opacity:0 }, { offset:.15, opacity:.85 },
+          { transform:`translate(${pe.x + Math.cos(ang) * dist}px,${pe.y + Math.sin(ang) * dist + F * 0.15}px) scale(${sz * 0.4})`, opacity:0 }], { delay:tU + dU - 40, duration:520 }); });
+    }
+    this.fadeOut(dFade, tFade, true);
+    this.log.planned = tFade + dFade;
+  },
+  fadeOut(dur, delay, deal){
+    const mn = $('#menu');
+    const go = () => { if (this.done) return; if (deal) { mn.classList.add('dealin'); setTimeout(() => mn.classList.remove('dealin'), 1000); } };
+    const fa = this.el.animate([{ opacity:1 }, { opacity:0 }], { duration:dur, delay, fill:'forwards', easing:'ease' });
+    this.anims.push(fa);
+    setTimeout(go, delay);
+    fa.finished.then(() => this.finish(false), () => {});
+    this._failsafe = setTimeout(() => this.finish(false), delay + dur + 1500);
+  },
+  skip(e){
+    if (this.done || !this.el) return;
+    e.preventDefault(); e.stopPropagation();
+    this.log.mode = 'skipped';
+    this.anims.forEach(an => an.cancel());
+    // swallow the click that follows this pointerdown, so the tap never lands on a menu button
+    const swallow = ev => { ev.preventDefault(); ev.stopPropagation(); };
+    this.el.addEventListener('click', swallow, { capture:true, once:true });
+    this.el.animate([{ opacity:1 }, { opacity:0 }], { duration:120, fill:'forwards' });
+    $('#menu').classList.remove('dealin');
+    this.done = true; store.set('introSeen', true); this.log.end = now();
+    setTimeout(() => this.remove(), 450);
+  },
+  finish(){
+    if (this.done) return;
+    this.done = true; this.log.end = now();
+    if (this.log.mode === 'full' || this.log.mode === 'short') store.set('introSeen', true);
+    this.remove();
+  },
+  remove(){ clearTimeout(this._failsafe); if (this._key) window.removeEventListener('keydown', this._key); if (this.el) { this.el.remove(); this.el = null; } }
+};
+
+/* ---------- native bridges (all optional, all fail quietly) ---------- */
+const Native = {
+  plugin(name){
+    const C = window.Capacitor;
+    if (!C || !(C.isNativePlatform ? C.isNativePlatform() : C.isNative)) return null;
+    try { return (C.Plugins && C.Plugins[name]) || (C.registerPlugin ? C.registerPlugin(name) : null); } catch(e){ return null; }
+  },
+  haptic(kind){
+    if (!settings.haptics) return;
+    const H = this.plugin('Haptics');
+    try {
+      if (H) { if (kind === 'end') H.notification({ type:'WARNING' }).catch(()=>{}); else H.impact({ style: kind === 'got' ? 'HEAVY' : 'LIGHT' }).catch(()=>{}); }
+      else if (navigator.vibrate) navigator.vibrate(kind === 'got' ? 40 : kind === 'end' ? [80,60,80] : 15);
+    } catch(e){}
+  },
+  _wl:null,
+  async keepAwake(on){
+    const K = this.plugin('KeepAwake');
+    try { if (K) await (on ? K.keepAwake() : K.allowSleep()); } catch(e){}
+    try {
+      if (on && 'wakeLock' in navigator && !this._wl) { this._wl = await navigator.wakeLock.request('screen'); this._wl.addEventListener && this._wl.addEventListener('release', () => this._wl = null); }
+      if (!on && this._wl) { await this._wl.release(); this._wl = null; }
+    } catch(e){ this._wl = null; }
+  }
+};
+
+/* ---------- synthesized sound (no audio files) ---------- */
+const Sound = {
+  ctx:null,
+  init(){ if (this.ctx) return; try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e){} },
+  resume(){ try { if (this.ctx && this.ctx.state === 'suspended') this.ctx.resume(); } catch(e){} },
+  tone(f, dur, type='triangle', vol=.18, at=0, to=null){
+    if (!settings.sound || !this.ctx) return;
+    try {
+      const c = this.ctx, t = c.currentTime + at, o = c.createOscillator(), g = c.createGain();
+      o.type = type; o.frequency.setValueAtTime(f, t); if (to) o.frequency.exponentialRampToValueAtTime(to, t + dur);
+      g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + 0.03);
+    } catch(e){}
+  },
+  got(){ this.tone(660,.12); this.tone(990,.18,'triangle',.18,.08); },
+  pass(){ this.tone(220,.22,'square',.07,0,120); },
+  tick(){ this.tone(1300,.035,'square',.05); },
+  count(){ this.tone(523,.12,'sine',.2); },
+  go(){ this.tone(784,.1,'sine',.2); this.tone(1046,.25,'sine',.2,.09); },
+  buzz(){ this.tone(150,.7,'sawtooth',.12); this.tone(157,.7,'sawtooth',.1); },
+  run(){ [784,988,1175,1568].forEach((f,i) => this.tone(f,.12,'triangle',.13,i*.06)); },
+  win(){ [523,659,784,1046,784,1046].forEach((f,i) => this.tone(f,.2,'triangle',.15,i*.12)); }
+};
+
+/* ---------- tilt input ----------
+   Uses gravity along the screen's normal (z). Works in any orientation.
+   Face-up sign is learned while the player holds the phone to read it,
+   so platform sign differences don't matter. */
+const Tilt = {
+  perm:null, listening:false, lastAt:0, f:null, neutral:0, armed:false, nSince:0,
+  faceUp: store.get('faceUp', -1), enabled:false, onFire:null, onRaw:null,
+  steadyRef:null, steadySince:0, samples:null, unavailable:false,
+  supported(){ return 'DeviceMotionEvent' in window; },
+  needsPermission(){ return this.supported() && typeof DeviceMotionEvent.requestPermission === 'function' && this.perm !== 'granted'; },
+  requestPermission(){ // must be called synchronously inside a tap
+    if (!this.needsPermission()) return Promise.resolve(this.supported());
+    let p; try { p = DeviceMotionEvent.requestPermission(); } catch(e){ return Promise.resolve(false); }
+    return Promise.resolve(p).then(r => { this.perm = r; return r === 'granted'; }).catch(() => { this.perm = 'denied'; return false; });
+  },
+  listen(){ if (this.listening) return; window.addEventListener('devicemotion', e => this.handle(e), { passive:true }); this.listening = true; },
+  waitForEvents(ms){
+    return new Promise(res => { const t0 = now(); const iv = setInterval(() => {
+      if (this.lastAt > t0 - 400) { clearInterval(iv); res(true); } else if (now() - t0 > ms) { clearInterval(iv); res(false); } }, 60); });
+  },
+  async enable(permPromise){
+    if (this.unavailable || !this.supported()) return false;
+    const ok = await permPromise; if (!ok) return false;
+    this.listen(); const got = await this.waitForEvents(1300);
+    if (!got) this.unavailable = true;
+    return got;
+  },
+  startCalibration(){ this.samples = []; },
+  endCalibration(){
+    const s = (this.samples || []).slice().sort((a,b)=>a-b); this.samples = null;
+    const med = s.length ? s[s.length >> 1] : 0;
+    this.neutral = Math.abs(med) <= 4.5 ? med : 0; this.armed = false; this.nSince = 0; this.steadyRef = null;
+  },
+  rearm(){ this.armed = false; this.nSince = 0; this.steadyRef = null; },
+  thresh(){ return ({ low:6.5, normal:5, high:3.8 })[settings.sens] || 5; },
+  delta(){ if (this.f == null) return 0; let d = (this.f - this.neutral) * -this.faceUp; return settings.flip ? -d : d; },
+  handle(e){
+    const a = e.accelerationIncludingGravity; if (!a || a.z == null) return;
+    const t = now(); this.lastAt = t;
+    this.f = this.f == null ? a.z : this.f * 0.7 + a.z * 0.3;
+    if (this.learning && Math.abs(this.f) > 4.5) { this.faceUp = Math.sign(this.f); store.set('faceUp', this.faceUp); this.learning = false; }
+    if (this.samples) this.samples.push(this.f);
+    if (this.onRaw) this.onRaw(this.delta());
+    if (!this.enabled) return;
+    const d = this.delta(), th = this.thresh();
+    if (this.armed) {
+      if (d > th) this.fire('got'); else if (d < -th) this.fire('pass');
+    } else {
+      if (Math.abs(d) < 2.2) { if (!this.nSince) this.nSince = t; if (t - this.nSince > 220) this.armed = true; }
+      else this.nSince = 0;
+      // If the starting angle was misjudged, adopt any steady, roughly upright position as the new neutral.
+      if (!this.armed && Math.abs(this.f) < 5) {
+        if (this.steadyRef == null || Math.abs(this.f - this.steadyRef) > 1.2) { this.steadyRef = this.f; this.steadySince = t; }
+        else if (t - this.steadySince > 1500) { this.neutral = this.f; this.armed = true; this.steadyRef = null; }
+      }
+    }
+  },
+  fire(kind){ this.armed = false; this.nSince = 0; this.steadyRef = null; if (this.onFire) this.onFire(kind); }
+};
+
+/* ---------- sync (Supabase RPC over fetch; optional) ---------- */
+const CROCK = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
+function genSyncKey(){ const a = new Uint8Array(16); crypto.getRandomValues(a); return Array.from(a, b => CROCK[b & 31]).join(''); }
+const fmtKey = k => k.replace(/(.{4})(?=.)/g, '$1-');
+function normKey(s){ return String(s||'').toUpperCase().replace(/[\s-]/g,'').replace(/O/g,'0').replace(/[IL]/g,'1').replace(/U/g,'V'); }
+const Sync = {
+  state:'idle', lastOk: store.get('lastSync', 0), lastErr:null, busy:false,
+  cfg(){ const c = window.CHALKLINE_SUPABASE; return c && c.url && c.anonKey ? c : null; },
+  key(){ let k = store.get('syncKey'); if (!k) { k = genSyncKey(); store.set('syncKey', k); } return k; },
+  async call(fn, body){
+    const c = this.cfg(); if (!c) throw new Error('not configured');
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 8000);
+    const headers = { 'Content-Type':'application/json', apikey:c.anonKey };
+    if (/^eyJ/.test(c.anonKey)) headers.Authorization = 'Bearer ' + c.anonKey; // legacy anon JWT; new publishable keys go in apikey only
+    try {
+      const r = await fetch(c.url.replace(/\/+$/,'') + '/rest/v1/rpc/' + fn, { method:'POST', headers, body:JSON.stringify(body), signal:ctl.signal });
+      if (!r.ok) throw new Error('server said ' + r.status);
+      const txt = await r.text(); return txt ? JSON.parse(txt) : null;
+    } finally { clearTimeout(to); }
+  },
+  slice(){ return { stats, history: history.slice(0, 20), at: Date.now(), board: { id: settings.board || 'chalk', at: settings.boardAt || 0 } }; },
+  apply(data){
+    if (!data || typeof data !== 'object') return;
+    const me = deviceId(), others = {};
+    Object.entries(data.devices || {}).forEach(([id,v]) => { if (id !== me && v && v.stats) others[id] = v; });
+    store.set('remote', others);
+    const local = store.get('decks', {}); let changed = false;
+    Object.entries(data.decks || {}).forEach(([id,d]) => {
+      if (!d || typeof d !== 'object' || !/^u_[a-z0-9]+$/.test(id)) return;
+      if (!local[id] || (+d.u || 0) > (+local[id].u || 0)) { local[id] = sanitizeDeck(d, id); changed = true; }
+    });
+    if (changed) { store.set('decks', local); invalidateDecks(); }
+    let nb = null;
+    Object.values(others).forEach(v => { const b = v && v.board; if (b && boardDef(b.id) && (+b.at || 0) > (settings.boardAt || 0) && (!nb || +b.at > +nb.at)) nb = b; });
+    if (nb) { settings.board = nb.id; settings.boardAt = +nb.at; saveSettings(); }
+    applyBoard();
+  },
+  async run(reason){
+    if (!this.cfg() || this.busy) return;
+    this.busy = true; this.state = 'syncing'; renderSyncStatus();
+    try {
+      const data = await this.call('chalkline_push', { p_key:this.key(), p_device:deviceId(), p_slice:this.slice(), p_decks:store.get('decks', {}) });
+      this.apply(data); this.lastOk = Date.now(); store.set('lastSync', this.lastOk); this.state = 'ok'; this.lastErr = null;
+      const fresh = checkAch(); if (fresh.length && reason === 'manual') toast(fresh.join(', '), 4000, 'award', 'Award unlocked');
+    } catch(e){ this.state = 'error'; this.lastErr = String(e && e.message || e); }
+    this.busy = false; renderSyncStatus(); if (current === 'menu') renderMenu();
+  }
+};
+function sanitizeDeck(d, id){
+  const words = Array.isArray(d.words) ? d.words.map(w => String(w).slice(0,48).trim()).filter(Boolean).slice(0,500) : [];
+  return { id, name:String(d.name||'My deck').slice(0,32), words, u:+d.u||Date.now(), del:!!d.del };
+}
+
+/* ---------- UI helpers ---------- */
+let current = 'loading';
+function show(id){
+  if (id !== 'final' && Confetti.raf) { cancelAnimationFrame(Confetti.raf); Confetti.raf = 0; $('#confetti').style.display = 'none'; }
+  $$('.screen').forEach(s => s.classList.toggle('on', s.id === id));
+  current = id; const el = $('#'+id); if (el) el.scrollTop = 0;
+}
+function ask(msg, yes, sub=''){
+  return new Promise(res => {
+    $('#askMsg').textContent = msg; $('#askYesT').textContent = yes; $('#askYesS').textContent = sub;
+    $('#ask').classList.add('on'); setTimeout(() => $('#askNo').focus(), 30);
+    const done = v => { $('#ask').classList.remove('on'); $('#askYes').onclick = $('#askNo').onclick = null; res(v); };
+    $('#askYes').onclick = () => done(true); $('#askNo').onclick = () => done(false);
+  });
+}
+let toastT;
+function toast(msg, ms=2600, kind='', label=''){
+  const t = $('#toast'); t.className = '';
+  if (kind === 'award') { t.classList.add('award'); t.innerHTML = `<span class="lbl">${esc(label)}</span>${esc(msg)}`; } else t.textContent = msg;
+  void t.offsetWidth; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms);
+}
+function seg(el, options, value, onPick){
+  el.innerHTML = options.map(([v,l]) => `<button type="button" data-v="${esc(v)}" aria-pressed="${String(v) === String(value)}">${esc(l)}</button>`).join('');
+  el.onclick = e => { const b = e.target.closest('button'); if (!b) return; const v = b.dataset.v;
+    $$('#'+el.id+' button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); onPick(v); };
+}
+function drawLights(svg, n=10, shape='bulb'){
+  // Two drapes of wire; control x sits at each span's midpoint, so x is linear in t.
+  const spans = [[0,4,100,26,200,10],[200,10,300,26,400,4]];
+  const yAt = x => { const s = x < 200 ? spans[0] : spans[1]; const t = (x - s[0]) / (s[4] - s[0]); return (1-t)*(1-t)*s[1] + 2*t*(1-t)*s[3] + t*t*s[5]; };
+  let g = '<path class="wire" d="M0 4 Q 100 26 200 10 Q 300 26 400 4"/>';
+  for (let i = 0; i < n; i++){ const x = (i + .5) * 400 / n, y = yAt(x) - 1, st = `style="--i:${i}"`;
+    let body;
+    if (shape === 'lantern') body = `<rect class="cap" x="-3" y="0" width="6" height="4" rx="1"/><rect class="bulb" data-i="${i}" ${st} x="-5.5" y="4" width="11" height="15" rx="3.5"/><path class="win" d="M-5.5 9.5h11M-5.5 14h11M0 4v15"/>`;
+    else if (shape === 'paper') body = `<rect class="cap" x="-2" y="0" width="4" height="4"/><circle class="bulb paper" data-i="${i}" data-c="${i % 3}" ${st} cx="0" cy="12.5" r="8"/><ellipse class="win" cx="0" cy="12.5" rx="8" ry="2.6"/><path class="win" d="M0 4.5v16"/>`;
+    else body = `<rect class="cap" x="-3.5" y="0" width="7" height="6" rx="1"/><ellipse class="bulb" data-i="${i}" ${st} cx="0" cy="12.5" rx="5.5" ry="7.5"/>`;
+    g += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)})">${body}</g>`; }
+  svg.innerHTML = g;
+}
+function setLights(svg, lit, burst=false, run=0){
+  svg.querySelectorAll('.bulb').forEach(b => b.classList.toggle('lit', +b.dataset.i < lit));
+  svg.classList.toggle('run1', run >= 3 && run < 6);
+  svg.classList.toggle('run2', run >= 6 && run < 10);
+  svg.classList.toggle('run3', run >= 10);
+  if (burst || run === 10) {
+    const cls = run === 10 ? 'chase' : 'burst';
+    svg.classList.remove('burst','chase'); void svg.getBoundingClientRect(); svg.classList.add(cls);
+  }
+}
+
+/* ---------- menu ---------- */
+let session = store.get('session', null);
+if (session && (session.v !== 1 || session.status !== 'playing')) { session = null; store.del('session'); }
+function renderMenu(){
+  const m = merged(), tk = todayKey(), best = m.daily[tk], streak = dailyStreak(m.daily);
+  const cards = [];
+  if (session && session.status === 'playing') {
+    const names = session.teams.map(t => t.name).join(' vs ');
+    const total = session.rounds * session.teams.length;
+    cards.push(`<button class="idx" id="mResume"><span class="t">Resume game</span><span class="s">${esc(session.daily ? 'Daily deck' : names)}, turn ${Math.min(session.t+1,total)} of ${total}</span></button>`);
+  }
+  cards.push(`<button class="idx" id="mNew"><span class="t">New game</span><span class="s">Classic, Sudden death or Relay</span></button>`);
+  const dsub = best != null ? `Today: ${best} points${streak > 1 ? `, ${streak}-day streak` : ''}. Beat it?` : `Same 40 cards for everyone today${streak ? `. ${streak}-day streak` : ''}`;
+  cards.push(`<button class="idx" id="mDaily"><span class="t">Daily deck</span><span class="s">${esc(dsub)}</span></button>`);
+  $('#menuCards').innerHTML = cards.join('');
+  const r = $('#mResume'); if (r) r.onclick = resumeGame;
+  $('#mNew').onclick = () => { renderSetup(); show('setup'); };
+  $('#mDaily').onclick = startDaily;
+  setLights($('#menuLights'), 10);
+}
+
+/* ---------- setup ---------- */
+const MODES = { classic:'Guess as many as you can before time runs out.', sudden:'No passing. The first pass ends your turn.', relay:'Every 3 right answers, the phone goes to the next teammate.' };
+const TIERS = { E:'Easy words, worth 1 point each.', M:'Medium words, worth 2 points each.', H:'Hard words, worth 3 points each.', W:'A shuffle of all three. Points follow each card.' };
+const TEAM_COLORS = ['var(--t0)','var(--t1)','var(--t2)','var(--t3)'];
+function renderSetup(){
+  seg($('#segMode'), [['classic','Classic'],['sudden','Sudden death'],['relay','Relay']], setup.mode, v => { setup.mode = v; if (v === 'relay' && setup.timer < 90) setup.timer = 90; saveSetup(); renderSetup(); });
+  $('#modeHint').textContent = MODES[setup.mode];
+  seg($('#segTier'), [['E','Easy'],['M','Medium'],['H','Hard'],['W','Wildcard']], setup.tier, v => { setup.tier = v; saveSetup(); $('#tierHint').textContent = TIERS[v]; renderStartSub(); });
+  $('#tierHint').textContent = TIERS[setup.tier];
+  seg($('#segTimer'), [[30,'30s'],[45,'45s'],[60,'60s'],[90,'90s'],[120,'120s']], setup.timer, v => { setup.timer = +v; saveSetup(); renderStartSub(); });
+  seg($('#segStyles'), [['1','On'],['0','Off']], setup.styles ? '1' : '0', v => { setup.styles = v === '1'; saveSetup(); });
+  seg($('#segRounds'), [[1,'1'],[2,'2'],[3,'3'],[4,'4'],[5,'5']], setup.rounds, v => { setup.rounds = +v; saveSetup(); renderStartSub(); });
+  renderTeams(); renderDeckSummary(); renderStartSub();
+}
+function renderTeams(){
+  const relay = setup.mode === 'relay';
+  $('#teamList').innerHTML = setup.teams.map((t,i) => `
+    <div class="team"><button class="bpick" data-b="${i}" style="color:${TEAM_COLORS[i]};border-color:${TEAM_COLORS[i]}" aria-label="Team ${i+1} badge: ${BADGES[teamBadge(t,i) % BADGES.length][0]}. Tap to change.">${badgeSvg(teamBadge(t,i))}</button>
+      <div><label class="lab" for="tn${i}">Team ${i+1}</label><input class="txt" id="tn${i}" data-i="${i}" data-f="name" dir="auto" maxlength="20" value="${esc(t.name)}">
+      ${relay ? `<input class="txt players" dir="auto" data-i="${i}" data-f="players" maxlength="120" placeholder="Players, separated by commas" aria-label="Team ${i+1} players" value="${esc(t.players||'')}">` : ''}</div>
+      ${setup.teams.length > 1 ? `<button class="rm" data-rm="${i}" aria-label="Remove team ${i+1}">Remove</button>` : '<span></span>'}
+    </div>`).join('');
+  $$('#teamList input').forEach(inp => inp.oninput = () => { setup.teams[+inp.dataset.i][inp.dataset.f] = inp.value; saveSetup(); });
+  $$('#teamList [data-b]').forEach(b => b.onclick = () => { const i = +b.dataset.b, t = setup.teams[i]; t.badge = (teamBadge(t,i) + 1) % BADGES.length; saveSetup(); renderTeams(); });
+  $$('#teamList [data-rm]').forEach(b => b.onclick = () => { setup.teams.splice(+b.dataset.rm, 1); saveSetup(); renderTeams(); renderStartSub(); });
+  $('#addTeam').style.display = setup.teams.length >= 4 ? 'none' : '';
+  $('#addTeam').onclick = () => { const names = ['Red team','Blue team','Yellow team','Green team']; setup.teams.push({ name:names[setup.teams.length] || 'Team', players:'' }); saveSetup(); renderTeams(); renderStartSub(); };
+}
+function validDecks(){ const ids = new Set(allDecks().map(d => d.id)); return setup.decks.filter(id => ids.has(id)); }
+function poolSize(ids, tier){ let n = 0; ids.forEach(id => { const d = deckById(id); if (d) n += d.words.filter(w => d.custom || tier === 'W' || ({E:1,M:2,H:3})[tier] === w[1]).length; }); return n; }
+function renderDeckSummary(){
+  const ids = validDecks();
+  $('#deckSummary').textContent = ids.length ? ids.map(id => deckById(id).name).join(', ') : 'No decks chosen yet.';
+}
+function renderStartSub(){
+  const ids = validDecks(), n = poolSize(ids, setup.tier);
+  const b = $('#startBtn');
+  if (!ids.length) { $('#startSub').textContent = 'Choose at least one deck'; b.disabled = true; b.style.opacity = .5; return; }
+  if (n < 10) { $('#startSub').textContent = `Only ${n} words at this difficulty. Add decks or pick Wildcard.`; b.disabled = true; b.style.opacity = .5; return; }
+  b.disabled = false; b.style.opacity = '';
+  $('#startSub').textContent = `${setup.teams.length} team${setup.teams.length>1?'s':''}, ${setup.rounds} turn${setup.rounds>1?'s':''} each, ${n.toLocaleString()} words in play`;
+}
+
+/* ---------- deck picker ---------- */
+function visibleDecks(){ return allDecks().filter(d => pickLang === 'all' || (pickLang === 'ar') === isArDeck(d.id)); }
+function renderPicker(){
+  const q = fold($('#deckSearch').value.trim());
+  seg($('#deckLang'), [['all','All'],['en','English'],['ar','العربية']], pickLang, v => { pickLang = v; renderPicker(); });
+  const decks = visibleDecks(); const seen = loadSeen(); const sel = new Set(setup.decks);
+  const rows = [];
+  decks.forEach(d => {
+    let sub = '', hit = !q || fold(d.name).includes(q);
+    if (q.length >= 2) { const m = d.words.filter(w => fold(w[0]).includes(q)); if (m.length) { hit = true; if (!fold(d.name).includes(q)) sub = `Has ${m.slice(0,2).map(w=>w[0]).join(', ')}${m.length > 2 ? ` and ${m.length-2} more` : ''}`; } }
+    if (!hit) return;
+    if (!sub) { const s = (seen[d.id]||[]).length; sub = d.custom ? 'Your deck' : (s ? `${s} played, ${d.words.length - s} fresh` : 'All fresh'); }
+    rows.push(`<button class="deck" role="checkbox" aria-checked="${sel.has(d.id)}" data-id="${esc(d.id)}"><span class="box"></span><span><span class="nm">${esc(d.name)}</span><span class="sub">${esc(sub)}</span></span><span class="ct">${d.words.length}</span></button>`);
+  });
+  $('#deckList').innerHTML = rows.join('') || `<p class="empty">Nothing matches “${esc(q)}”. Try a shorter search, or make your own deck in My decks.</p>`;
+  $$('#deckList .deck').forEach(b => b.onclick = () => {
+    const id = b.dataset.id, i = setup.decks.indexOf(id);
+    if (i >= 0) setup.decks.splice(i,1); else setup.decks.push(id);
+    b.setAttribute('aria-checked', String(i < 0)); saveSetup(); renderPickCount(); });
+  renderPickCount();
+}
+function renderPickCount(){ const ids = validDecks(); $('#pickCount').textContent = `${ids.length} chosen, ${poolSize(ids, setup.tier).toLocaleString()} words at ${({E:'easy',M:'medium',H:'hard',W:'wildcard'})[setup.tier]}`; }
+
+/* ---------- game flow ---------- */
+function parsePlayers(s){ return String(s||'').split(',').map(x => x.trim()).filter(Boolean).slice(0,12); }
+function saveSession(){ if (session) store.set('session', session); }
+function startGame(opts={}){
+  const daily = !!opts.daily;
+  const cfg = daily ? { mode:'classic', tier:'W', timer:60, rounds:1, styles:true, decks:[], teams:[{ name:'You', players:'', badge:0 }] } : setup;
+  const deck = daily ? dailyDeck(opts.dailyKey) : buildDeck(validDecks(), cfg.tier, (Date.now() ^ (Math.random()*4294967296)) >>> 0);
+  session = { v:1, id:uid(), status:'playing', daily, dailyKey:opts.dailyKey||null, mode:cfg.mode, tier:cfg.tier, timer:cfg.timer, rounds:cfg.rounds,
+    decks:(cfg.decks||[]).slice(), styles: cfg.styles !== false, teams:cfg.teams.map((t,i) => ({ name:(t.name||'').trim() || `Team ${i+1}`, players:parsePlayers(t.players), badge:teamBadge(t,i), score:0, holder:0 })),
+    deck, ptr:0, t:0, turn:null, log:[], startedAt:Date.now() };
+  saveSession(); toHandoff();
+}
+function startDaily(){ startGame({ daily:true, dailyKey:todayKey() }); }
+function resumeGame(){ if (!session) return; invalidateDecks(); toHandoff(true); }
+const teamIdx = () => session.t % session.teams.length;
+const roundNo = () => Math.floor(session.t / session.teams.length) + 1;
+function holderName(team, h){ return team.players.length ? team.players[h % team.players.length] : null; }
+
+function toHandoff(resumed){
+  const s = session, ti = teamIdx(), team = s.teams[ti];
+  if (!s.turn) s.turn = { results:[], timeLeft:s.timer*1000, holder:team.holder, since:0, steps:0, ended:false };
+  if (s.turn.ended) { saveSession(); showRecap(); return; }
+  saveSession();
+  $('#hoMeta').textContent = s.daily ? `Daily deck, ${s.dailyKey}` : `Turn ${roundNo()} of ${s.rounds}`;
+  $('#hoWho').textContent = s.daily ? 'Your turn' : `${team.name}`;
+  $('#hoWho').style.color = s.daily ? '' : TEAM_COLORS[ti];
+  $('#hoBadge').innerHTML = s.daily ? '' : badgeSvg(teamBadge(team, ti));
+  $('#hoBadge').style.color = s.daily ? '' : TEAM_COLORS[ti];
+  const hn = s.mode === 'relay' ? holderName(team, s.turn.holder) : null;
+  const left = Math.ceil(s.turn.timeLeft/1000);
+  $('#hoSub').textContent = (s.turn.results.length ? `Picking up with ${left}s left. ` : '') + (hn ? `${hn} holds the phone first.` : (s.mode === 'relay' ? 'Pick who holds the phone first.' : 'Pick who holds the phone.'));
+  const useTiltLabel = settings.input === 'tap' ? 'Tap the buttons on screen' : 'Tilt down for got it, tilt up to pass';
+  $('#hoHow').textContent = `Phone on your forehead, screen facing out. ${useTiltLabel}. ${({classic:'',sudden:'Sudden death: one pass ends the turn.',relay:'Relay: after 3 right answers, pass the phone on.'})[s.mode]}${s.styles ? ' Each card shows the clue-givers how to clue it.' : ''}`;
+  $('#readySub').textContent = `${left} seconds on the clock`;
+  $('#hoInput').textContent = settings.input === 'tap' ? 'Use tilt instead' : 'Use tap buttons instead';
+  Tilt.learning = true; // phone is in hand, screen toward the reader: learn the face-up sign
+  show('handoff');
+}
+$('#hoInput').onclick = () => { settings.input = settings.input === 'tap' ? 'auto' : 'tap'; saveSettings(); toHandoff(); };
+$('#hoQuit').onclick = async () => { if (await ask('End this game now?', 'End game', 'Finished turns are kept in history')) finishGame(true); };
+
+let inputMode = 'tap';
+$('#readyBtn').onclick = async () => {
+  Sound.init(); Sound.resume();
+  const wantTilt = settings.input !== 'tap';
+  const permP = wantTilt ? Tilt.requestPermission() : null; // synchronous within the tap, required by iOS
+  const btn = $('#readyBtn'); btn.disabled = true;
+  let ok = false;
+  if (wantTilt) { $('#readySub').textContent = 'Checking the motion sensor…'; ok = await Tilt.enable(permP); }
+  setTimeout(() => { Tilt.learning = false; }, 300); // stop learning before the phone reaches the forehead
+  btn.disabled = false;
+  inputMode = ok ? 'tilt' : 'tap';
+  if (wantTilt && !ok && (settings.input === 'tilt' || Tilt.perm === 'denied')) toast(Tilt.perm === 'denied' ? 'Motion access is off, so tap buttons are on. You can allow it in iOS Settings.' : "Tilt isn't available here, so tap buttons are on.", 3600);
+  Native.keepAwake(true);
+  countdown(beginTurn);
+};
+
+function countdown(done){
+  const ov = $('#count'), n = $('#countN'), m = $('#countM');
+  m.textContent = inputMode === 'tilt' ? 'Phone on your forehead, screen facing out. Hold still.' : 'Hold the phone up so your team can see the word.';
+  const er = $('#eraser'); const scrawl = () => { n.classList.remove('scrawl'); er.classList.remove('go'); void n.offsetWidth; n.classList.add('scrawl'); er.classList.add('go'); };
+  ov.classList.add('on'); let k = 3; n.textContent = k; Sound.count(); scrawl();
+  if (inputMode === 'tilt') { Tilt.enabled = false; setTimeout(() => Tilt.startCalibration(), 1500); }
+  const iv = setInterval(() => {
+    k--; if (k > 0) { n.textContent = k; Sound.count(); scrawl(); return; }
+    clearInterval(iv); ov.classList.remove('on'); n.classList.remove('scrawl'); er.classList.remove('go'); Sound.go();
+    if (inputMode === 'tilt') Tilt.endCalibration();
+    done();
+  }, 800);
+}
+
+let running = false, deadline = 0, lastSec = 0, lastSave = 0, locked = false, curKey = null, streak = 0;
+function beginTurn(){
+  const s = session, ti = teamIdx(), team = s.teams[ti];
+  $('#play').classList.toggle('tilt', inputMode === 'tilt');
+  $('#phTeam').textContent = s.daily ? 'Daily deck' : team.name;
+  $('#phTeam').style.color = s.daily ? '' : TEAM_COLORS[ti];
+  streak = 0; s.turn.results.slice().reverse().every(r => r.ok ? ++streak : false);
+  updateHead(); show('play'); setLights($('#playLights'), Math.min(streak,10), false, streak);
+  locked = false; running = true; deadline = now() + s.turn.timeLeft; lastSec = Math.ceil(s.turn.timeLeft/1000);
+  Tilt.onFire = act; Tilt.enabled = inputMode === 'tilt'; Tilt.rearm();
+  nextCard(); requestAnimationFrame(loop);
+}
+function updateHead(){
+  const s = session, team = s.teams[teamIdx()], sc = scoreTurn(s.turn.results);
+  $('#phScore').textContent = sc.score;
+  const hn = s.mode === 'relay' ? holderName(team, s.turn.holder) : null;
+  $('#phSub').textContent = s.mode === 'relay' ? (hn ? `${hn} guessing` : `Player ${s.turn.steps+1} guessing`) + `, ${3 - s.turn.since} to pass` : s.mode === 'sudden' ? `Sudden death, ${sc.correct} survived` : `${sc.correct} right, ${sc.passed} passed`;
+}
+function drawDialTicks(){ $('#ticks').innerHTML = Array.from({length:12}, (_,i) => { const a = i/12*Math.PI*2; return `<line x1="${50+Math.cos(a)*45}" y1="${50+Math.sin(a)*45}" x2="${50+Math.cos(a)*41}" y2="${50+Math.sin(a)*41}"/>`; }).join(''); }
+const ARC_LEN = 2*Math.PI*39;
+function setDial(ms){
+  const total = session.timer*1000, f = clamp(ms/total,0,1), arc = $('#arc');
+  arc.style.strokeDasharray = `${ARC_LEN*f} ${ARC_LEN}`;
+  const sec = Math.ceil(ms/1000); $('#dialNum').textContent = sec;
+  $('#dial').classList.toggle('low', sec <= 10);
+  $('#dial').setAttribute('aria-label', `${sec} seconds left`);
+}
+function loop(){
+  if (!running) return;
+  const left = Math.max(0, deadline - now()); session.turn.timeLeft = left; setDial(left);
+  const sec = Math.ceil(left/1000);
+  if (sec !== lastSec) { lastSec = sec; if (sec <= 10 && sec > 0) Sound.tick();
+    if (sec <= 5 && sec > 0) { const d = $('#dial'); d.classList.remove('tick'); void d.offsetWidth; d.classList.add('tick'); } }
+  if (now() - lastSave > 2000) { lastSave = now(); saveSession(); }
+  if (left <= 0) { endTurn(); return; }
+  requestAnimationFrame(loop);
+}
+function nextCard(){
+  const s = session; let w = null, guard = 0;
+  while (!w && guard++ < 50) {
+    if (s.ptr >= s.deck.length) s.deck = s.deck.concat(s.daily ? dailyDeck(s.dailyKey + '-' + s.deck.length) : buildDeck(s.decks, s.tier, Date.now() >>> 0));
+    curKey = s.deck[s.ptr++]; w = wordFor(curKey);
+  }
+  if (!w) { toast('No more cards in these decks.'); endTurn(); return; }
+  $('#cCat').textContent = w.deckId.startsWith('ar_') ? w.deck.split(' · ')[0] : w.deck; // Arabic decks: Arabic name only, so it fits the header
+  const st = pickStyle(s, w); s.turn.style = st; s.turn.shownAt = s.turn.timeLeft;
+  const chip = $('#cStyle'); chip.textContent = st ? STYLE_INFO[st][0] + (STYLE_INFO[st][1] ? ' +1' : '') : ''; chip.classList.toggle('bonus', !!(st && STYLE_INFO[st][1]));
+  $$('#cTier i').forEach((x,i) => x.classList.toggle('on', i < w.tier));
+  $('#cTier').setAttribute('aria-label', ['','Easy','Medium','Hard'][w.tier]);
+  const card = $('#icard'); card.classList.remove('out-got','out-pass','in'); void card.offsetWidth; card.classList.add('in');
+  const el = $('#cWord'), ar = isArabic(w.w); el.textContent = w.w; el.dir = ar ? 'rtl' : 'ltr'; el.lang = ar ? 'ar' : 'en'; el.classList.toggle('ar', ar); fitWord(el);
+  if (!s.daily) markSeen(curKey);
+  saveSession();
+}
+function fitWord(el){
+  // Largest size that fits the card, found by binary search (long titles wrap, short words go huge).
+  const box = el.parentElement, H = box.clientHeight - 20, W = box.clientWidth - 40;
+  let lo = 14, hi = Math.max(16, Math.min(H * .8, 220));
+  for (let i = 0; i < 9; i++) { // 9 halvings of a <=220 px range: under 0.5 px precision, 9 layouts not 14
+    const mid = (lo + hi) / 2; el.style.fontSize = mid + 'px';
+    if (el.scrollHeight <= H && el.scrollWidth <= W + 1) lo = mid; else hi = mid;
+  }
+  el.style.fontSize = lo + 'px';
+}
+function scoreTurn(results){
+  let score = 0, run = 0, best = 0, correct = 0, passed = 0;
+  results.forEach(r => { if (r.ok) { run++; correct++; best = Math.max(best, run); score += r.p * (run >= 6 ? 3 : run >= 3 ? 2 : 1); } else { run = 0; passed++; } });
+  return { score, best, correct, passed };
+}
+function act(kind){
+  if (!running || locked || !curKey) return;
+  const s = session, w = wordFor(curKey); if (!w) return;
+  locked = true;
+  const ok = kind === 'got';
+  const st = s.turn.style || null, bonus = st ? STYLE_INFO[st][1] : 0;
+  const ms = Math.max(0, Math.round((s.turn.shownAt != null ? s.turn.shownAt : s.timer*1000) - (deadline - now())));
+  s.turn.results.push({ k:curKey, w:w.w, p:w.p + bonus, tier:w.tier, ok, style:st, ms });
+  streak = ok ? streak + 1 : 0;
+  if (ok) { Sound.got(); Native.haptic('got'); if (streak > 0 && streak % 3 === 0) Sound.run(); } else { Sound.pass(); Native.haptic('pass'); }
+  setLights($('#playLights'), Math.min(streak, 10), ok && streak > 0 && streak % 3 === 0, streak);
+  flash(ok); updateHead();
+  $('#icard').classList.add(ok ? 'out-got' : 'out-pass');
+  curKey = null; saveSession();
+  if (s.mode === 'sudden' && !ok) { setTimeout(endTurn, 450); return; }
+  if (s.mode === 'relay' && ok && ++s.turn.since >= 3) { setTimeout(relayHandoff, 420); return; }
+  setTimeout(() => { if (!running) return; nextCard(); locked = false; }, 380);
+}
+function flash(ok){ const f = $('#flash'); $('#flashT').textContent = ok ? 'Got it' : 'Pass'; f.className = 'ov on ' + (ok ? 'got' : 'pass'); f.style.opacity = 1; setTimeout(() => { f.style.opacity = 0; setTimeout(() => f.classList.remove('on'), 250); }, 330); }
+function relayHandoff(){
+  const s = session, team = s.teams[teamIdx()];
+  s.turn.since = 0; s.turn.holder++; s.turn.steps++;
+  if (s.turn.steps >= 2) { stats.flags.relay3 = 1; saveStats(); }
+  const hn = holderName(team, s.turn.holder);
+  $('#relayWho').textContent = hn || 'the next player';
+  $('#relay').classList.add('on'); Sound.run(); Native.haptic('end'); updateHead(); saveSession();
+  Tilt.enabled = false;
+  setTimeout(() => { $('#relay').classList.remove('on'); if (!running) return; Tilt.rearm(); Tilt.enabled = inputMode === 'tilt'; nextCard(); locked = false; }, 2600);
+}
+function pauseTurn(note){
+  if (!running) return;
+  running = false; Tilt.enabled = false; session.turn.timeLeft = Math.max(0, deadline - now());
+  if (curKey) { session.ptr--; curKey = null; } // put the unanswered card back
+  saveSession(); Native.keepAwake(false);
+  $('#pauseNote').textContent = note || `${Math.ceil(session.turn.timeLeft/1000)} seconds left on the clock.`;
+  $('#relay').classList.remove('on'); $('#pause').classList.add('on');
+}
+$('#pauseBtn').onclick = () => pauseTurn();
+$('#resumeBtn').onclick = () => { $('#pause').classList.remove('on'); Sound.init(); Sound.resume(); Native.keepAwake(true); countdown(beginTurn); };
+$('#endTurnBtn').onclick = () => { $('#pause').classList.remove('on'); endTurn(); };
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (running) pauseTurn('The game paused when the app went to the background.'); saveSession(); }
+  else if (Sync.cfg() && Date.now() - Sync.lastOk > 60000) Sync.run('resume');
+});
+['tapGot','tapPass'].forEach(id => $('#'+id).onclick = () => act(id === 'tapGot' ? 'got' : 'pass'));
+document.addEventListener('keydown', e => { // keyboard play for testing and accessibility
+  if (current !== 'play' || !running) return;
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === 'Enter') { e.preventDefault(); act('got'); }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); act('pass'); }
+  if (e.key === 'Escape') pauseTurn();
+});
+
+function endTurn(){
+  if (!session || !session.turn) return;
+  const wasRunning = running;
+  running = false; Tilt.enabled = false; locked = true;
+  if (curKey) { curKey = null; } // card on screen when time ran out isn't counted
+  session.turn.timeLeft = 0; session.turn.ended = true; saveSession();
+  Native.keepAwake(false);
+  if (wasRunning) { Sound.buzz(); Native.haptic('end'); }
+  $('#relay').classList.remove('on');
+  showRecap();
+}
+function showRecap(){
+  const s = session, ti = teamIdx(), team = s.teams[ti], res = s.turn.results;
+  const total = s.rounds * s.teams.length, last = s.t + 1 >= total;
+  $('#rcMeta').textContent = s.daily ? `Daily deck, ${s.dailyKey}` : `Turn ${roundNo()} of ${s.rounds}`;
+  $('#rcTitle').textContent = s.daily ? 'Time' : `${team.name}`;
+  $('#rcTitle').style.color = s.daily ? '' : TEAM_COLORS[ti];
+  const draw = () => {
+    const sc = scoreTurn(res);
+    $('#rcScore').textContent = sc.score;
+    $('#rcTally').innerHTML = `<span class="pill">${sc.correct} right</span><span class="pill">${sc.passed} passed</span><span class="pill">Best run ${sc.best}</span>`;
+    $('#rcList').innerHTML = res.length ? res.map((r,i) => `<button class="res ${r.ok?'ok':'no'}" data-i="${i}" aria-pressed="${r.ok}" aria-label="${esc(r.w)}, ${r.ok?'right':'passed'}. Tap to change."><span class="mk">${r.ok?'✓':'✕'}</span><span class="w" dir="auto">${esc(r.w)}${r.style ? `<span class="st">${STYLE_INFO[r.style][0]}</span>` : ''}</span><span class="p">${r.p}</span></button>`).join('') : '<p class="empty">No cards this turn.</p>';
+    $$('#rcList .res').forEach(b => b.onclick = () => { const r = res[+b.dataset.i]; r.ok = !r.ok; saveSession(); draw(); });
+  };
+  draw();
+  const nextTeam = s.teams[(s.t + 1) % s.teams.length];
+  $('#rcNextT').textContent = last ? 'See final scores' : `Next: ${nextTeam.name}`;
+  $('#rcNextS').textContent = last ? 'Add up the night' : 'Hand the phone over';
+  show('recap');
+}
+$('#rcNext').onclick = () => {
+  const s = session; if (!s || !s.turn) return;
+  const ti = teamIdx(), team = s.teams[ti], res = s.turn.results, sc = scoreTurn(res);
+  team.score += sc.score;
+  if (s.mode === 'relay') team.holder = s.turn.holder + 1;
+  s.log.push({ ti, round:roundNo(), score:sc.score, correct:sc.correct, passed:sc.passed,
+    results:res.map(r => ({ w:r.w, ok:r.ok, ms:r.ms || 0, style:r.style || null, p:r.p })) });
+  const okStyles = new Set(); s.log.forEach(l => (l.results || []).forEach(r => { if (r.ok && r.style) okStyles.add(r.style); }));
+  if (okStyles.size >= 5) stats.flags.range = 1;
+  // stats
+  stats.turns++; stats.cards += res.length; stats.correct += sc.correct; stats.passes += sc.passed;
+  stats.bestStreak = Math.max(stats.bestStreak, sc.best); stats.bestTurn = Math.max(stats.bestTurn, sc.score);
+  if (s.mode === 'sudden') stats.sdBest = Math.max(stats.sdBest, sc.correct);
+  res.forEach(r => { const id = r.k.slice(0, r.k.lastIndexOf(':')); const c = stats.deck[id] || [0,0]; c[0]++; if (r.ok) c[1]++; stats.deck[id] = c; });
+  if (sc.correct >= 8 && sc.passed === 0) stats.flags.clean = 1;
+  if (res.filter(r => r.ok && r.tier === 3).length >= 6) stats.flags.hard6 = 1;
+  saveStats();
+  s.t++; s.turn = null; saveSession();
+  if (s.t >= s.rounds * s.teams.length) finishGame(false); else if (s.teams.length > 1) showBoard(ti, sc.score); else toHandoff();
+};
+
+function tallyMarks(n, newFrom){
+  const max = Math.min(n, 100); let html = '';
+  for (let g = 0; g * 5 < max; g++){
+    let paths = '';
+    for (let k = 0; k < 5 && g*5 + k < max; k++){
+      const idx = g*5 + k, isNew = idx >= newFrom, j = (idx * 37 % 7) - 3; // deterministic wobble, hand-drawn feel
+      const d = k < 4 ? `M${(5 + k*7 + j*.3).toFixed(1)} ${(4 + j*.4).toFixed(1)} L${(6 + k*7 - j*.2).toFixed(1)} ${(25 - j*.3).toFixed(1)}` : `M2 ${21 + j*.3} L32 ${6 - j*.2}`;
+      paths += `<path d="${d}"${isNew ? ` class="new" style="animation-delay:${(idx - newFrom) * 60}ms"` : ''}/>`;
+    }
+    html += `<svg class="tg" viewBox="0 0 34 28" aria-hidden="true">${paths}</svg>`;
+  }
+  if (n > 100) html += `<span class="tmore">+${n - 100} more</span>`;
+  return html;
+}
+function showBoard(justTi, gained){
+  const s = session, total = s.rounds * s.teams.length, nextTi = s.t % s.teams.length;
+  $('#bdMeta').textContent = `After ${s.t} of ${total} turns`;
+  const top = Math.max(...s.teams.map(t => t.score));
+  $('#bdRows').innerHTML = s.teams.map((t,i) => {
+    const prev = i === justTi ? t.score - gained : t.score;
+    return `<div class="brow" style="color:var(--bt${i})" aria-label="${esc(t.name)}: ${t.score} points">
+      ${badgeSvg(teamBadge(t,i))}<span class="bn">${esc(t.name)}${i === justTi ? `<span class="gain">+${gained} this turn</span>` : ''}</span><span class="bs" style="color:var(--board-ink)">${t.score}${t.score === top && top > 0 ? '' : ''}</span>
+      <div class="tallies">${tallyMarks(t.score, prev)}</div></div>`;
+  }).join('');
+  $('#bdNextT').textContent = `Next: ${s.teams[nextTi].name}`;
+  $('#bdNextS').textContent = 'Hand the phone over';
+  show('board');
+  if (gained > 0) Sound.run();
+}
+$('#bdNext').onclick = () => { if (session) toHandoff(); };
+
+function highlights(s){
+  const all = []; s.log.forEach(l => (l.results || []).forEach(r => all.push({ ...r, ti:l.ti })));
+  const who = ti => s.daily ? 'You' : s.teams[ti].name, sec = ms => (ms/1000).toFixed(1) + 's';
+  const out = [];
+  const fast = all.filter(r => r.ok && r.ms > 150).sort((a,b) => a.ms - b.ms)[0];
+  if (fast) out.push(['Fastest guess', fast.w, `${sec(fast.ms)}, ${who(fast.ti)}`]);
+  let best = { n:0 }; s.log.forEach(l => { let run = 0; (l.results || []).forEach(r => { run = r.ok ? run + 1 : 0; if (run > best.n) best = { n:run, ti:l.ti }; }); });
+  if (best.n >= 2) out.push(['Longest run', `${best.n} in a row`, who(best.ti)]);
+  if (!s.daily && s.log.length > 1) { const bt = s.log.slice().sort((a,b) => b.score - a.score)[0]; out.push(['Best turn', `${bt.score} points`, `${who(bt.ti)}, turn ${bt.round}`]); }
+  const away = all.filter(r => !r.ok && r.ms >= 2000).sort((a,b) => b.ms - a.ms)[0];
+  if (away) out.push(['Got away', away.w, `${sec(away.ms)} of trying`]);
+  const bonus = all.filter(r => r.ok && r.style && STYLE_INFO[r.style][1]).length;
+  if (bonus && out.length < 4) out.push(['Bonus clues', `${bonus} right`, 'One word, humming or sounds']);
+  return out.slice(0, 4);
+}
+function shareText(s){
+  const lines = ['Chalkline game night' + (s.daily ? ` (daily deck ${s.dailyKey})` : '')];
+  lines.push(s.teams.map(t => `${t.name}: ${t.score}`).join(', '));
+  highlights(s).forEach(([t,v,sub]) => lines.push(`${t}: ${v} (${sub})`));
+  return lines.join('\n');
+}
+$('#fnShare').onclick = async () => {
+  if (!lastGame) return;
+  const text = shareText(lastGame);
+  try { if (navigator.share) { await navigator.share({ text }); return; } } catch(e){ if (e && e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(text); toast('Results copied. Paste them into your group chat.'); return; } catch(e){}
+  await ask(text, 'Done', 'Copy this text to share it');
+};
+
+function finishGame(early){
+  const s = session; if (!s) return;
+  running = false; Tilt.enabled = false; Native.keepAwake(false);
+  if (s.turn && s.turn.ended && early) { /* uncommitted recap: count it */ }
+  s.status = 'done';
+  const played = s.log.length;
+  if (played) {
+    if (!early) stats.games++;
+    if (s.daily) { const sc = s.teams[0].score; stats.daily[s.dailyKey] = Math.max(stats.daily[s.dailyKey] || 0, sc); }
+    history.unshift({ t:Date.now(), mode:s.mode, daily:s.daily, teams:s.teams.map(t => [t.name, t.score]), turns:played,
+      cards:s.log.reduce((a,l)=>a+l.correct+l.passed,0), correct:s.log.reduce((a,l)=>a+l.correct,0), early });
+    history = history.slice(0, 50); store.set('history', history); saveStats();
+  }
+  store.del('session'); session = null;
+  const fresh = checkAch();
+  if (!played) { renderMenu(); show('menu'); return; }
+  renderFinal(s, fresh, checkBoards()); if (Sync.cfg()) Sync.run('game');
+}
+let lastGame = null;
+function renderFinal(s, fresh, boards){
+  lastGame = s;
+  const sorted = s.teams.map((t,i) => ({...t, i})).sort((a,b) => b.score - a.score);
+  const top = sorted[0].score, winners = sorted.filter(t => t.score === top);
+  $('#fnMeta').textContent = s.daily ? `Daily deck, ${s.dailyKey}` : ({classic:'Classic',sudden:'Sudden death',relay:'Relay'})[s.mode];
+  if (s.daily) {
+    const m = merged(), best = m.daily[s.dailyKey] || 0, streak = dailyStreak(m.daily);
+    $('#fnTitle').textContent = `${top} points`;
+    $('#fnList').innerHTML = `<div class="row"><span class="k">Your best today</span><span class="v">${best}</span></div><div class="row"><span class="k">Daily streak</span><span class="v">${streak} day${streak===1?'':'s'}</span></div><p class="muted small" style="margin-top:12px">Everyone gets the same 40 cards today. Compare scores with friends, then come back tomorrow for a new deck.</p>`;
+    $('#fnAgain').style.display = 'none';
+  } else {
+    $('#fnTitle').textContent = s.teams.length === 1 ? `${top} points` : winners.length > 1 ? "It's a tie" : `${winners[0].name} wins`;
+    $('#fnList').innerHTML = sorted.map(t => `<div class="stand"><span class="n" style="color:${TEAM_COLORS[t.i]};display:inline-flex;align-items:center;gap:10px">${badgeSvg(teamBadge(t,t.i), t.score === top && s.teams.length > 1 ? 'badge stamp' : 'badge')}${esc(t.name)}${t.score === top && s.teams.length > 1 ? '<svg class="ring" viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true"><path d="M30 8 C 90 -4, 196 6, 192 30 C 188 56, 40 62, 10 40 C -8 24, 20 10, 60 6"/></svg>' : ''}</span><span class="s">${t.score}</span></div>`).join('');
+    $('#fnAgain').style.display = '';
+  }
+  const cards = s.log.reduce((a,l)=>a+l.correct+l.passed,0), correct = s.log.reduce((a,l)=>a+l.correct,0);
+  $('#fnTally').innerHTML = `<span class="pill">${cards} card${cards===1?'':'s'}</span><span class="pill">${correct} right</span>`;
+  $('#fnHigh').innerHTML = highlights(s).map(([t,v,sub]) => `<div class="idx"><span class="t">${esc(t)}</span><span class="v${String(v).split(' ').some(w => w.length > 11) ? ' long' : ''}">${esc(v)}</span><span class="s">${esc(sub)}</span></div>`).join('');
+  show('final'); Sound.win();
+  if (top > 0) { const cs = getComputedStyle(document.documentElement); Confetti.run(winners.map(w => cs.getPropertyValue('--t' + w.i).trim())); }
+  let delay = 900;
+  if (fresh && fresh.length) { setTimeout(() => toast(fresh.join(', '), 4000, 'award', fresh.length > 1 ? 'Awards unlocked' : 'Award unlocked'), delay); delay += 4300; }
+  if (boards && boards.length) setTimeout(() => toast(`${boards.join(', ')}. Pick it in Settings.`, 4600, 'award', boards.length > 1 ? 'New boards' : 'New board'), delay);
+}
+$('#fnAgain').onclick = () => { if (lastGame && !lastGame.daily) startGame(); };
+
+/* ---------- stats screen ---------- */
+let statTab = 's';
+function renderStats(){
+  $$('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === statTab)));
+  const m = merged(), body = $('#statsBody');
+  if (statTab === 's') {
+    const acc = m.cards ? Math.round(m.correct / m.cards * 100) : 0, ds = dailyStreak(m.daily);
+    const topDecks = Object.entries(m.deck).filter(([id]) => deckById(id)).sort((a,b) => b[1][0]-a[1][0]).slice(0,5);
+    body.innerHTML = [
+      ['Games finished', m.games], ['Turns played', m.turns], ['Cards seen', m.cards], ['Right answers', m.correct],
+      ['Hit rate', acc + '%'], ['Longest run', m.bestStreak], ['Best turn', m.bestTurn + ' pts'], ['Best Sudden death', m.sdBest],
+      ['Daily decks played', Object.keys(m.daily).length], ['Daily streak', ds + (ds===1?' day':' days')]
+    ].map(([k,v]) => `<div class="row"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`).join('') +
+    (topDecks.length ? `<h3 class="sh">Most played decks</h3>` + topDecks.map(([id,v]) => `<div class="row"><span class="k">${esc(deckById(id).name)}</span><span class="v">${v[1]}/${v[0]}</span></div>`).join('') : '') +
+    (Object.keys(store.get('remote', {})).length ? `<p class="small muted" style="margin-top:14px">Includes progress from your other devices.</p>` : '');
+  } else if (statTab === 'a') {
+    const n = ACH.filter(([id]) => m.ach[id]).length;
+    body.innerHTML = `<p class="muted">${n} of ${ACH.length} unlocked</p>` + ACH.map(([id,name,desc]) => `<div class="ach ${m.ach[id]?'got':''}"><span class="ic"></span><span><span class="an">${esc(name)}</span><br><span class="ad">${esc(desc)}</span></span></div>`).join('');
+  } else {
+    body.innerHTML = history.length ? history.map(h => {
+      const d = new Date(h.t), when = d.toLocaleDateString(undefined, { month:'short', day:'numeric' }) + ', ' + d.toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit' });
+      const teams = h.teams.map(([n,s]) => `${esc(n)} ${s}`).join(', ');
+      return `<div class="row" style="display:block"><div style="display:flex;justify-content:space-between;gap:10px"><b>${h.daily ? 'Daily deck' : ({classic:'Classic',sudden:'Sudden death',relay:'Relay'})[h.mode]}</b><span class="muted small">${esc(when)}</span></div><div class="muted small">${teams}. ${h.correct} of ${h.cards} right${h.early ? ', ended early' : ''}.</div></div>`;
+    }).join('') : '<p class="empty">No games yet. Finished games show up here.</p>';
+  }
+}
+$$('.tabs button').forEach(b => b.onclick = () => { statTab = b.dataset.tab; renderStats(); });
+
+/* ---------- my decks ---------- */
+let editing = null;
+function renderMyDecks(){
+  const ds = customDecks();
+  $('#myDecks').innerHTML = ds.length ? ds.map(d => `<button class="deck" data-id="${esc(d.id)}" style="grid-template-columns:1fr auto"><span><span class="nm">${esc(d.name)}</span><span class="sub">Tap to edit</span></span><span class="ct">${d.words.length}</span></button>`).join('') : '<p class="empty">No decks yet.</p>';
+  $$('#myDecks .deck').forEach(b => b.onclick = () => openEditor(b.dataset.id));
+}
+function openEditor(id){
+  const all = store.get('decks', {}); editing = id && all[id] ? all[id] : null;
+  $('#edTitle').textContent = editing ? 'Edit deck' : 'New deck';
+  $('#edName').value = editing ? editing.name : '';
+  $('#edWords').value = editing ? editing.words.join('\n') : '';
+  $('#edDelete').style.display = editing ? '' : 'none';
+  updateEdCount(); show('editor');
+}
+function edWords(){ const seen = new Set(); return $('#edWords').value.split('\n').map(w => w.trim().slice(0,48)).filter(w => { const k = w.toLowerCase(); if (!w || seen.has(k)) return false; seen.add(k); return true; }).slice(0,500); }
+function updateEdCount(){ const n = edWords().length; $('#edCount').textContent = `${n} word${n===1?'':'s'}`; $('#edHint').textContent = n < 10 ? `Add ${10-n} more to save.` : ''; }
+$('#edWords').oninput = updateEdCount;
+$('#edSave').onclick = () => {
+  const name = $('#edName').value.trim() || 'My deck', words = edWords();
+  if (words.length < 10) { toast(`Add at least 10 words. You have ${words.length}.`); return; }
+  const all = store.get('decks', {}), id = editing ? editing.id : 'u_' + uid(8);
+  all[id] = { id, name:name.slice(0,32), words, u:Date.now(), del:false };
+  store.set('decks', all); invalidateDecks();
+  if (!editing) { stats.decksMade++; saveStats(); if (!setup.decks.includes(id)) { setup.decks.push(id); saveSetup(); } }
+  const fresh = checkAch(); toast(fresh.length ? `Saved. Unlocked: ${fresh.join(', ')}` : 'Deck saved');
+  if (Sync.cfg()) Sync.run('deck');
+  renderMyDecks(); show('decks');
+};
+$('#edDelete').onclick = async () => {
+  if (!editing || !(await ask(`Delete “${editing.name}”?`, 'Delete deck', 'This can’t be undone'))) return;
+  const all = store.get('decks', {}); all[editing.id] = { id:editing.id, name:editing.name, words:[], u:Date.now(), del:true };
+  store.set('decks', all); invalidateDecks(); setup.decks = setup.decks.filter(x => x !== editing.id); saveSetup();
+  if (Sync.cfg()) Sync.run('deck');
+  toast('Deck deleted'); renderMyDecks(); show('decks');
+};
+$('#newDeck').onclick = () => openEditor(null);
+
+/* ---------- settings ---------- */
+function renderSettings(){
+  renderThemes();
+  seg($('#segMotion'), [['system','Match phone'],['full','Full'],['reduced','Reduced']], settings.motion || 'system', v => { settings.motion = v; saveSettings(); applyMotion(); renderMotionHint(); });
+  renderMotionHint();
+  seg($('#segInput'), [['auto','Tilt, tap if needed'],['tilt','Tilt only'],['tap','Tap buttons']], settings.input, v => { settings.input = v; saveSettings(); renderInputHint(); });
+  renderInputHint();
+  seg($('#segFlip'), [['0','Down is got it'],['1','Reversed']], settings.flip ? '1' : '0', v => { settings.flip = v === '1'; saveSettings(); });
+  seg($('#segSens'), [['low','Firm'],['normal','Normal'],['high','Light']], settings.sens, v => { settings.sens = v; saveSettings(); });
+  seg($('#segSound'), [['1','Sound on'],['0','Sound off']], settings.sound ? '1' : '0', v => { settings.sound = v === '1'; saveSettings(); });
+  seg($('#segHaptics'), [['1','Vibration on'],['0','Vibration off']], settings.haptics ? '1' : '0', v => { settings.haptics = v === '1'; saveSettings(); });
+  renderSyncStatus();
+}
+function renderMotionHint(){
+  const r = reduceMQ && reduceMQ.matches;
+  $('#motionHint').textContent = ({ system:`Follows your phone's Reduce Motion setting (currently ${r ? 'on' : 'off'}).`, full:'All animations on.', reduced:'Fades instead of movement, and no confetti.' })[settings.motion || 'system'];
+}
+function renderThemes(){
+  const m = merged(), cur = document.documentElement.dataset.board;
+  $('#themeList').innerHTML = BOARDS.map(b => { const ok = b.test(m), on = cur === b.id;
+    return `<button class="tsw ${ok ? '' : 'locked'}" data-board="${b.id}" data-t="${b.id}" aria-pressed="${on}" aria-label="${esc(b.name)}${ok ? '' : '. Locked. ' + esc(b.how)}"><span class="pv"><span class="bulbs"><i></i><i></i><i></i><i></i><i></i></span><span class="fr"></span><span class="mini"></span></span><span class="nm">${esc(b.name)}</span><span class="how">${ok ? (on ? 'In use' : 'Tap to use') : 'Locked: ' + esc(b.how)}</span></button>`; }).join('');
+  $$('#themeList .tsw').forEach(el => el.onclick = () => {
+    const b = boardDef(el.dataset.t);
+    if (!b.test(merged())) { toast(`Locked. ${b.how} to unlock it.`); return; }
+    setBoard(b.id); renderThemes();
+  });
+}
+function renderInputHint(){ $('#inputHint').textContent = ({auto:'Uses the motion sensor, and switches to buttons if it isn’t available.',tilt:'Always use the motion sensor.',tap:'Big Got it and Pass buttons. Good for phone holders and cases that make tilting awkward.'})[settings.input]; }
+function ago(t){ const s = Math.round((Date.now()-t)/1000); return s < 60 ? 'just now' : s < 3600 ? `${Math.round(s/60)} min ago` : s < 86400 ? `${Math.round(s/3600)} h ago` : `${Math.round(s/86400)} days ago`; }
+function renderSyncStatus(){
+  const st = $('#syncStatus'), box = $('#syncBox'); if (!st) return;
+  if (!Sync.cfg()) { st.textContent = 'Sync isn’t set up in this build. Your progress is saved on this device.'; box.innerHTML = ''; return; }
+  st.textContent = Sync.state === 'syncing' ? 'Syncing…' : Sync.state === 'error' ? `Couldn’t reach the sync server (${Sync.lastErr}). Progress is safe on this device and will sync next time.` : Sync.lastOk ? `Last synced ${ago(Sync.lastOk)}.` : 'Not synced yet.';
+  if (box.dataset.built) { return; }
+  box.dataset.built = '1';
+  box.innerHTML = `<p class="small muted">Your sync code. Enter it on another device to share stats and decks. Anyone with this code can see and add to your progress, so keep it to yourself.</p>
+    <div class="code" id="myCode"></div>
+    <div style="display:grid;gap:10px;margin-top:12px">
+      <button class="btn" id="syncNow">Sync now</button>
+      <label class="lab" for="otherCode" style="margin-top:10px">Use a code from another device</label>
+      <input class="txt" id="otherCode" maxlength="24" placeholder="XXXX-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false">
+      <button class="btn quiet" id="useCode">Link this device</button>
+    </div>`;
+  $('#myCode').textContent = fmtKey(Sync.key());
+  $('#syncNow').onclick = () => Sync.run('manual');
+  $('#useCode').onclick = async () => {
+    const k = normKey($('#otherCode').value);
+    if (!/^[0-9A-HJKMNP-TV-Z]{16}$/.test(k)) { toast('That code doesn’t look right. It’s 16 letters and numbers.'); return; }
+    if (k === Sync.key()) { toast('That’s already this device’s code.'); return; }
+    if (!(await ask('Link this device to that code?', 'Link device', 'This device’s progress is added to it'))) return;
+    store.set('syncKey', k); store.set('remote', {}); $('#myCode').textContent = fmtKey(k); $('#otherCode').value = '';
+    await Sync.run('manual'); toast(Sync.state === 'ok' ? 'Linked. Stats and decks are now shared.' : 'Saved the code. It will sync when the server is reachable.');
+  };
+}
+$('#resetAll').onclick = async () => {
+  if (!(await ask('Erase stats, history, decks and settings on this device?', 'Erase', 'Anything already synced stays on the server'))) return;
+  ['stats','history','decks','seen','session','settings','setup','remote','lastSync','faceUp','boardsSeen','introSeen'].forEach(k => store.del(k));
+  location.reload();
+};
+$('#testTilt').onclick = async () => {
+  Tilt.unavailable = false;
+  const p = Tilt.requestPermission();
+  const ok = await Tilt.enable(p);
+  if (!ok) { toast(Tilt.perm === 'denied' ? 'Motion access is off. Allow it in iOS Settings, then try again.' : 'No motion sensor found on this device.'); return; }
+  $('#tester').classList.add('on'); $('#tOut').textContent = ''; Tilt.neutral = 0; Tilt.rearm(); Tilt.enabled = true;
+  Tilt.onRaw = d => { $('#tDot').style.left = clamp(50 + d / 10 * 50, 3, 97) + '%'; };
+  Tilt.onFire = k => { $('#tOut').textContent = k === 'got' ? 'Got it' : 'Pass'; $('#tOut').style.color = k === 'got' ? 'var(--sage)' : 'var(--miss)'; Native.haptic(k); };
+};
+$('#tClose').onclick = () => { Tilt.enabled = false; Tilt.onRaw = null; Tilt.onFire = act; $('#tester').classList.remove('on'); };
+
+/* ---------- navigation ---------- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]'); if (!b) return;
+  const to = b.dataset.go;
+  if (to === 'menu') { applyBoard(); renderMenu(); }
+  if (to === 'stats') { statTab = 's'; renderStats(); }
+  if (to === 'decks') renderMyDecks();
+  if (to === 'settings') renderSettings();
+  show(to);
+});
+$('#openPicker').onclick = () => { $('#deckSearch').value = ''; renderPicker(); show('picker'); };
+$('#deckSearch').oninput = () => renderPicker();
+$('#pickAll').onclick = () => { const ids = visibleDecks().map(d => d.id); setup.decks = pickLang === 'all' ? ids : Array.from(new Set(setup.decks.filter(id => !ids.includes(id) && ((pickLang === 'ar') !== isArDeck(id))).concat(ids))); saveSetup(); renderPicker(); };
+$('#pickNone').onclick = () => { const ids = new Set(visibleDecks().map(d => d.id)); setup.decks = setup.decks.filter(id => !ids.has(id)); saveSetup(); renderPicker(); };
+$('#pickerDone').onclick = () => { renderSetup(); show('setup'); };
+$('#startBtn').onclick = () => { if (!$('#startBtn').disabled) startGame(); };
+
+/* ---------- boot ---------- */
+function boot(){
+  try {
+    buildBuiltins(); drawDialTicks(); drawLights($('#playLights')); applyMotion(); applyBoard();
+    renderMenu();
+  } catch(e){ console.error(e); }
+  Intro.start().catch(e => { console.error(e); show('menu'); Intro.finish(); });
+  if (Sync.cfg()) setTimeout(() => Sync.run('startup'), 1500);
+}
+window.addEventListener('resize', () => { if (current === 'play' && $('#cWord').textContent) fitWord($('#cWord')); });
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "appId": "com.buhumaid3.chalkline",
+  "appName": "Chalkline",
+  "webDir": "www",
+  "backgroundColor": "#1F2A24",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#1F2A24",
+    "scrollEnabled": false,
+    "limitsNavigationsToAppBoundDomains": false
+  }
+}

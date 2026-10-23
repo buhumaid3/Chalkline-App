@@ -1,0 +1,48 @@
+workflows:
+  chalkline-ios:
+    name: Chalkline iOS to TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: Codemagic CI
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.buhumaid3.chalkline
+      node: 22
+      xcode: latest
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+    scripts:
+      - name: Install dependencies
+        script: npm ci
+      - name: Build web bundle
+        script: python3 tools/build.py
+      - name: Generate iOS project
+        script: |
+          if [ ! -d ios ]; then npx cap add ios; fi
+          npx cap sync ios
+      - name: Icon and splash
+        script: npx capacitor-assets generate --ios --iconBackgroundColor '#1F2A24' --splashBackgroundColor '#1F2A24' --splashBackgroundColorDark '#1F2A24'
+      - name: Patch iOS project
+        script: bash scripts/ci-ios.sh
+      - name: Code signing
+        script: xcode-project use-profiles
+      - name: Build number
+        script: |
+          # Codemagic's per-app build counter, same as Live Wire
+          sed -i '' -E "s/CURRENT_PROJECT_VERSION = [^;]+;/CURRENT_PROJECT_VERSION = ${BUILD_NUMBER};/g" ios/App/App.xcodeproj/project.pbxproj
+          echo "Build number ${BUILD_NUMBER}"
+      - name: Build IPA
+        script: xcode-project build-ipa --project "ios/App/App.xcodeproj" --scheme "App"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
