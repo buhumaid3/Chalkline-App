@@ -14,7 +14,7 @@ async function fresh(viewport = { width:390, height:844 }){
   const page = await ctx.newPage(); const errors = [];
   page.on('pageerror', e => errors.push(String(e)));
   await page.clock.install(); await page.goto(PAGE); await page.clock.runFor(1300);
-  await page.evaluate(() => { localStorage.setItem('cl1.settings', JSON.stringify({ input:'tap' })); });
+  await page.evaluate(() => { localStorage.setItem('cl1.settings', JSON.stringify({ input:'tap', sideways:false })); });
   await page.reload(); await page.clock.runFor(1300);
   return { ctx, page, errors, tick: ms => page.clock.runFor(ms) };
 }

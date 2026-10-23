@@ -33,16 +33,15 @@
   --f-ui:'CL UI','Archivo','CL Arabic','Cairo',-apple-system,system-ui,'Segoe UI',sans-serif;
   --f-mono:'CL Mono','JetBrains Mono','CL Arabic','Cairo',ui-monospace,Menlo,monospace;
   box-sizing:border-box;
-  padding-top:env(safe-area-inset-top,0px);
-  padding-bottom:env(safe-area-inset-bottom,0px);
-  padding-left:env(safe-area-inset-left,0px);
-  padding-right:env(safe-area-inset-right,0px);
+  --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+  --sal:env(safe-area-inset-left,0px); --sar:env(safe-area-inset-right,0px);
+  padding:var(--sat) var(--sar) var(--sab) var(--sal);
 }
 *,*::before,*::after{box-sizing:inherit}
-html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--slate)}
+html{height:100%;scroll-padding-top:var(--sat);background:var(--surface-bg);background-color:var(--slate);background-attachment:fixed}
 body{
   height:100%;margin:0;color:var(--chalk);font:400 17px/1.45 var(--f-ui);
-  background:var(--surface-bg);background-attachment:fixed;
+  background:transparent; /* the board lives on the root, so it also fills the notch and home-bar areas */
   -webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;
   overscroll-behavior:none;-webkit-text-size-adjust:100%;
 }
@@ -280,7 +279,7 @@ html[data-motion="reduced"] #intro{animation-duration:.01s!important;animation-d
 .ph-sub{display:block;font:600 13px var(--f-ui);color:var(--chalk-2)}
 .ph-right{justify-self:end;text-align:right}
 .ph-score{font:700 26px/1 var(--f-mono)}
-.pause-btn{background:none;border:1.5px solid var(--chalk-3);border-radius:999px;color:var(--chalk-2);font:600 13px var(--f-ui);padding:6px 12px;margin-top:4px;min-height:34px}
+.pause-btn{background:none;border:1.5px solid var(--chalk-3);border-radius:999px;color:var(--chalk-2);font:600 14px var(--f-ui);padding:6px 16px;margin-top:4px;min-height:44px;min-width:64px}
 .dial{position:relative;width:78px;height:78px}
 .dial svg{width:100%;height:100%;transform:rotate(-90deg)}
 .dial .face{fill:#F3EBDD}
@@ -311,7 +310,7 @@ html[data-motion="reduced"] #intro{animation-duration:.01s!important;animation-d
 #play.tilt .tilt-note{display:block}
 
 /* overlays */
-.ov{position:fixed;inset:0;display:none;place-items:center;text-align:center;z-index:20;padding:24px}
+.ov{position:fixed;inset:0;display:none;place-items:center;text-align:center;z-index:20;padding:calc(24px + var(--sat)) calc(24px + var(--sar)) calc(24px + var(--sab)) calc(24px + var(--sal))}
 .ov.on{display:grid}
 #flash{pointer-events:none;z-index:25;transition:opacity .25s}
 #flash.got{background:rgba(125,186,116,.94)}
@@ -326,6 +325,12 @@ html[data-motion="reduced"] #intro{animation-duration:.01s!important;animation-d
 #pause .inner,#tester .inner{width:min(100%,400px);display:grid;gap:14px}
 #tester{background:var(--overlay)}
 #ask{background:var(--overlay);z-index:30}
+#sideways{background:var(--overlay);z-index:28}
+#sideways .inner{width:min(100%,400px);display:grid;gap:14px;justify-items:center}
+#sideways .ph{width:54px;height:92px;border:4px solid var(--chalk);border-radius:12px;position:relative;animation:turnph 1.6s ease-in-out infinite}
+#sideways .ph::after{content:"";position:absolute;left:50%;bottom:6px;width:16px;height:3px;margin-left:-8px;border-radius:2px;background:var(--chalk)}
+@keyframes turnph{0%,20%{transform:rotate(0)}55%,80%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+.diag{margin:0;padding:10px 12px;border:1.5px dashed var(--chalk-3);border-radius:8px;font:500 13px/1.5 var(--f-mono);text-align:left;white-space:pre-wrap;color:var(--chalk);-webkit-user-select:text;user-select:text}
 #ask .inner{width:min(100%,400px);display:grid;gap:14px}
 .meter{position:relative;height:16px;border:2px solid var(--chalk-3);border-radius:999px;overflow:hidden}
 .meter .mid{position:absolute;left:50%;top:0;bottom:0;width:2px;background:var(--chalk-3)}
@@ -360,7 +365,7 @@ html[data-motion="reduced"] #intro{animation-duration:.01s!important;animation-d
 .ach .ad{font-size:14px;color:var(--chalk-2)}
 
 /* toast */
-#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);opacity:0;z-index:40;background:var(--card);color:var(--ink);font:600 15px/1.35 var(--f-ui);padding:12px 16px;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.45);max-width:min(92vw,460px);pointer-events:none;transition:opacity .2s,transform .2s;text-align:center}
+#toast{position:fixed;left:50%;bottom:calc(18px + var(--sab));transform:translateX(-50%) translateY(20px);opacity:0;z-index:40;background:var(--card);color:var(--ink);font:600 15px/1.35 var(--f-ui);padding:12px 16px;border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.45);max-width:min(92vw,460px);pointer-events:none;transition:opacity .2s,transform .2s;text-align:center}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
 .code{font:700 22px var(--f-mono);letter-spacing:.06em;padding:12px 14px;border:2px dashed var(--chalk-3);border-radius:8px;text-align:center;-webkit-user-select:all;user-select:all}
@@ -369,13 +374,23 @@ html[data-motion="reduced"] #intro{animation-duration:.01s!important;animation-d
 /* loading */
 
 @media (min-width:760px) and (min-height:560px){
-  body{background:var(--frame-bg)}
+  html{background:var(--frame-bg)}
   #app{margin:14px;height:calc(100% - 28px);border-radius:6px;box-shadow:inset 0 0 60px rgba(0,0,0,.35);background:var(--surface-bg)}
 }
 @media (orientation:landscape) and (max-height:520px){
-  .dial{width:62px;height:62px}.dial .num{font-size:20px}
+  .dial{width:54px;height:54px}.dial .num{font-size:19px}
   .lights{height:28px}
   .tap-row button{min-height:52px}
+  /* landscape play (how the game is held): Pass and Got it move beside the card so the word gets the height */
+  #play.on{display:grid;grid-template-columns:minmax(84px,104px) minmax(0,1fr) minmax(84px,104px);grid-template-rows:auto auto minmax(0,1fr) auto;column-gap:10px;row-gap:4px}
+  #play > .lights{grid-column:1/-1;height:20px}
+  #play > .play-head{grid-column:1/-1}
+  #play > .stage{grid-column:2;grid-row:3;min-width:0;min-height:0}
+  #play.tilt > .stage{grid-column:1/-1}
+  #play .tap-row{display:contents}
+  #play .tap-pass{grid-column:1;grid-row:3;height:100%;min-height:0}
+  #play .tap-got{grid-column:3;grid-row:3;height:100%;min-height:0}
+  #play > .tilt-note{grid-column:1/-1}
   .ph-team{font-size:19px}
   #hoBadge .badge{width:38px;height:38px}
   .handoff .who{font-size:40px;margin:2px 0}
@@ -612,6 +627,9 @@ html[data-motion="reduced"] #count .n,html[data-motion="reduced"] .eraser{animat
     <h3 class="sh">Answering</h3>
     <div class="seg" id="segInput" role="group" aria-label="How to answer"></div>
     <p class="hint" id="inputHint"></p>
+    <h3 class="sh">Orientation</h3>
+    <div class="seg" id="segSideways" role="group" aria-label="Orientation"></div>
+    <p class="hint" id="swHint"></p>
     <h3 class="sh">Tilt direction</h3>
     <div class="seg" id="segFlip" role="group" aria-label="Tilt direction"></div>
     <h3 class="sh">Tilt sensitivity</h3>
@@ -636,7 +654,8 @@ html[data-motion="reduced"] #count .n,html[data-motion="reduced"] .eraser{animat
 <div class="ov" id="flash" aria-hidden="true"><b id="flashT"></b></div>
 <div class="ov" id="relay"><div><p class="muted" style="font-size:18px">Pass the phone to</p><div class="big" id="relayWho"></div><p class="muted" id="relayNote">The clock is still running</p></div></div>
 <div class="ov" id="pause"><div class="inner"><h2 class="h2">Paused</h2><p class="muted" id="pauseNote"></p><button class="idx" id="resumeBtn"><span class="t">Keep playing</span><span class="s">A short countdown first</span></button><button class="btn" id="endTurnBtn">End this turn</button></div></div>
-<div class="ov" id="tester"><div class="inner"><h2 class="h2">Test tilt</h2><p class="muted">Hold the phone on your forehead, screen facing out, then tilt down and up.</p><div class="meter"><div class="mid"></div><div class="dot" id="tDot"></div></div><div style="display:flex;justify-content:space-between" class="small muted"><span>Pass</span><span>Got it</span></div><p id="tOut" style="font:400 30px var(--f-card);min-height:40px;margin:6px 0"></p><button class="btn" id="tClose">Done</button></div></div>
+<div class="ov" id="sideways" role="dialog" aria-modal="true" aria-labelledby="swT"><div class="inner"><div class="ph" aria-hidden="true"></div><h2 class="h2" id="swT">Turn your phone sideways</h2><p class="muted">The turn starts as soon as it's landscape.</p><button class="btn quiet" id="swUpright">Play upright instead</button></div></div>
+<div class="ov" id="tester"><div class="inner"><h2 class="h2">Test tilt</h2><p class="muted">Hold the phone on your forehead, screen facing out, sideways. Hold still for a moment, then tilt down and up.</p><div class="meter"><div class="mid"></div><div class="dot" id="tDot"></div></div><div style="display:flex;justify-content:space-between" class="small muted"><span>Pass</span><span>Got it</span></div><p id="tOut" style="font:400 30px var(--f-card);min-height:40px;margin:6px 0"></p><pre class="diag" id="tDiag" aria-live="off"></pre><div class="seg"><button id="tZero">Set start position</button><button id="tCopy">Copy readings</button></div><button class="btn" id="tClose">Done</button></div></div>
 <div class="ov" id="ask" role="dialog" aria-modal="true" aria-labelledby="askMsg"><div class="inner"><p id="askMsg" style="font-size:19px;margin:0 0 6px"></p><button class="idx" id="askYes"><span class="t" id="askYesT"></span><span class="s" id="askYesS"></span></button><button class="btn" id="askNo">Cancel</button></div></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -721,7 +740,7 @@ function dailyDeck(key){
 }
 
 /* ---------- settings / profile ---------- */
-const DEFAULT_SETTINGS = { input:'auto', flip:false, sens:'normal', sound:true, haptics:true, board:'chalk', boardAt:0, motion:'system' };
+const DEFAULT_SETTINGS = { sideways:true, input:'auto', flip:false, sens:'normal', sound:true, haptics:true, board:'chalk', boardAt:0, motion:'system' };
 let settings = Object.assign({}, DEFAULT_SETTINGS, store.get('settings', {}));
 const saveSettings = () => store.set('settings', settings);
 const DEFAULT_SETUP = { mode:'classic', tier:'M', timer:60, rounds:2, styles:true, decks:['animals','food','movies','actions'],
@@ -1084,9 +1103,16 @@ const Sound = {
    Face-up sign is learned while the player holds the phone to read it,
    so platform sign differences don't matter. */
 const Tilt = {
-  perm:null, listening:false, lastAt:0, f:null, neutral:0, armed:false, nSince:0,
-  faceUp: store.get('faceUp', -1), enabled:false, onFire:null, onRaw:null,
-  steadyRef:null, steadySince:0, samples:null, unavailable:false,
+  /* Tilt is read as an ANGLE: asin(z / |g|), where z is gravity along the screen's normal.
+     It doesn't depend on which landscape side the phone is held, has no ceiling (unlike raw z,
+     which saturates and could make "up" unreachable from a tipped-back start), and dividing
+     by |g| damps hand jolts. The face-up sign (which way z points when the screen faces the sky)
+     differs between platforms, so it is learned: continuously while not in a turn (phone lying
+     on a table or held to read), plus a quick read when Ready is tapped. */
+  perm:null, listening:false, lastAt:0, ang:null, mag:0, z:0, neutral:0, armed:false, nSince:0,
+  overDir:0, overSince:0, everArmed:false, steadyRef:null, steadySince:0, samples:null, unavailable:false,
+  faceUp: store.get('faceUp', -1), faceHow: store.get('faceHow', 'default'), vote:0, enabled:false, onFire:null, onRaw:null,
+  hz:0, _hzN:0, _hzT:0, last:null, learning:false,
   supported(){ return 'DeviceMotionEvent' in window; },
   needsPermission(){ return this.supported() && typeof DeviceMotionEvent.requestPermission === 'function' && this.perm !== 'granted'; },
   requestPermission(){ // must be called synchronously inside a tap
@@ -1106,37 +1132,86 @@ const Tilt = {
     if (!got) this.unavailable = true;
     return got;
   },
+  live(){ return this.listening && this.lastAt && now() - this.lastAt < 1500; },
   startCalibration(){ this.samples = []; },
   endCalibration(){
     const s = (this.samples || []).slice().sort((a,b)=>a-b); this.samples = null;
     const med = s.length ? s[s.length >> 1] : 0;
-    this.neutral = Math.abs(med) <= 4.5 ? med : 0; this.armed = false; this.nSince = 0; this.steadyRef = null;
+    this.neutral = Math.abs(med) <= 55 ? med : 0; this.rearm(true);
   },
-  rearm(){ this.armed = false; this.nSince = 0; this.steadyRef = null; },
-  thresh(){ return ({ low:6.5, normal:5, high:3.8 })[settings.sens] || 5; },
-  delta(){ if (this.f == null) return 0; let d = (this.f - this.neutral) * -this.faceUp; return settings.flip ? -d : d; },
+  rearm(fresh){ this.armed = false; this.nSince = 0; this.overDir = 0; this.steadyRef = null; if (fresh) this.everArmed = false; },
+  thresh(){ return ({ low:38, normal:30, high:22 })[settings.sens] || 30; },
+  delta(){ if (this.ang == null) return 0; const d = (this.ang - this.neutral) * -this.faceUp; return settings.flip ? -d : d; },
+  setFace(sign, how){ if (sign === this.faceUp && how === this.faceHow) return; this.faceUp = sign; this.faceHow = how; store.set('faceUp', sign); store.set('faceHow', how); },
+  canLearn(){ return !this.enabled && !this.samples && current !== 'play' && !$('#count').classList.contains('on') && !$('#relay').classList.contains('on'); },
   handle(e){
     const a = e.accelerationIncludingGravity; if (!a || a.z == null) return;
-    const t = now(); this.lastAt = t;
-    this.f = this.f == null ? a.z : this.f * 0.7 + a.z * 0.3;
-    if (this.learning && Math.abs(this.f) > 4.5) { this.faceUp = Math.sign(this.f); store.set('faceUp', this.faceUp); this.learning = false; }
-    if (this.samples) this.samples.push(this.f);
+    const t = now(), dt = this.lastAt ? Math.min(0.2, (t - this.lastAt) / 1000) : 0; this.lastAt = t;
+    this._hzN++; if (t - this._hzT >= 1000) { this.hz = Math.round(this._hzN * 1000 / (t - this._hzT || 1000)); this._hzN = 0; this._hzT = t; }
+    const x = +a.x || 0, y = +a.y || 0, z = +a.z || 0, mag = Math.hypot(x, y, z); this.z = z; this.mag = mag;
+    if (mag < 4 || mag > 16) return; // a jolt or a throw, not a tilt
+    const raw = Math.asin(Math.max(-1, Math.min(1, z / mag))) * 180 / Math.PI;
+    this.ang = this.ang == null ? raw : this.ang * 0.55 + raw * 0.45;
+    if (this.learning && Math.abs(this.ang) > 35) { this.setFace(Math.sign(this.ang), 'ready'); this.vote = this.faceUp * 2; this.learning = false; }
+    if (this.canLearn() && Math.abs(this.ang) > 40) {
+      this.vote = Math.max(-30, Math.min(30, this.vote + Math.sign(this.ang) * dt));
+      if (Math.abs(this.vote) > 1.5 && Math.sign(this.vote) !== this.faceUp) this.setFace(Math.sign(this.vote), 'learned');
+      else if (Math.abs(this.vote) > 1.5 && this.faceHow === 'default') this.setFace(this.faceUp, 'learned');
+    }
+    if (this.samples) this.samples.push(this.ang);
     if (this.onRaw) this.onRaw(this.delta());
     if (!this.enabled) return;
     const d = this.delta(), th = this.thresh();
     if (this.armed) {
-      if (d > th) this.fire('got'); else if (d < -th) this.fire('pass');
+      const dir = d > th ? 1 : d < -th ? -1 : 0;
+      if (dir && dir === this.overDir) { if (t - this.overSince >= 40) this.fire(dir > 0 ? 'got' : 'pass', d); } // held past the line for 40 ms
+      else { this.overDir = dir; this.overSince = t; }
     } else {
-      if (Math.abs(d) < 2.2) { if (!this.nSince) this.nSince = t; if (t - this.nSince > 220) this.armed = true; }
+      if (Math.abs(d) < 12) { if (!this.nSince) this.nSince = t; if (t - this.nSince > 200) { this.armed = true; this.everArmed = true; this.overDir = 0; } }
       else this.nSince = 0;
-      // If the starting angle was misjudged, adopt any steady, roughly upright position as the new neutral.
-      if (!this.armed && Math.abs(this.f) < 5) {
-        if (this.steadyRef == null || Math.abs(this.f - this.steadyRef) > 1.2) { this.steadyRef = this.f; this.steadySince = t; }
-        else if (t - this.steadySince > 1500) { this.neutral = this.f; this.armed = true; this.steadyRef = null; }
+      // Only if the starting angle was misjudged (never armed since calibration): adopt a steady pose as the start.
+      // Never after an answer, so holding a slow nod can't become the new start and fire the opposite way.
+      if (!this.everArmed && Math.abs(this.ang) < 50) {
+        if (this.steadyRef == null || Math.abs(this.ang - this.steadyRef) > 4) { this.steadyRef = this.ang; this.steadySince = t; }
+        else if (t - this.steadySince > 1200) { this.neutral = this.ang; this.armed = true; this.everArmed = true; this.overDir = 0; this.steadyRef = null; }
       }
     }
   },
-  fire(kind){ this.armed = false; this.nSince = 0; this.steadyRef = null; if (this.onFire) this.onFire(kind); }
+  fire(kind, d){ this.armed = false; this.nSince = 0; this.overDir = 0; this.steadyRef = null; this.last = { kind, d, at:now() }; if (this.onFire) this.onFire(kind); }
+};
+
+/* ---------- orientation: free in menus, locked to the player's side during a turn ---------- */
+const Orient = {
+  locked:null, err:null,
+  angle(){
+    try { if (screen.orientation && typeof screen.orientation.angle === 'number') return ((screen.orientation.angle % 360) + 360) % 360; } catch(e){}
+    const w = window.orientation; return typeof w === 'number' ? ((w % 360) + 360) % 360 : 0;
+  },
+  landscape(){ return innerWidth > innerHeight; },
+  // web types match the plugin's: landscape-primary = angle 90 = device turned left (UIInterfaceOrientation.landscapeRight)
+  type(){ const a = this.angle(); if (!this.landscape()) return a === 180 ? 'portrait-secondary' : 'portrait-primary'; return a === 270 ? 'landscape-secondary' : 'landscape-primary'; },
+  plugin(){ return Native.plugin('ScreenOrientation'); },
+  // Native plugin only: Safari has no web orientation lock, and a browser's lock can stay pending.
+  // Capped at 500 ms so a stuck call can never hold up a turn; the lock still lands when it lands.
+  cap(pr){ return Promise.race([pr, new Promise(r => setTimeout(() => r('timeout'), 500))]); },
+  async lock(){
+    const t = this.type(); this.locked = t; this.err = null; const P = this.plugin();
+    if (P) { try { if (await this.cap(P.lock({ orientation:t })) === 'timeout') this.err = 'lock still pending'; } catch(e){ this.err = String(e && e.message || e); } }
+    return t;
+  },
+  async unlock(){
+    if (!this.locked) return; this.locked = null; const P = this.plugin();
+    if (P) { try { await this.cap(P.unlock()); } catch(e){} }
+  },
+  waitLandscape(){ // resolves 'landscape' once the screen has been landscape for 250 ms, or 'upright' if the player opts out
+    return new Promise(res => {
+      const ov = $('#sideways'); ov.classList.add('on'); let t = null;
+      const done = v => { ov.classList.remove('on'); removeEventListener('resize', check); removeEventListener('orientationchange', check); clearInterval(iv); $('#swUpright').onclick = null; res(v); };
+      const check = () => { clearTimeout(t); if (this.landscape()) t = setTimeout(() => { if (this.landscape()) done('landscape'); }, 250); };
+      addEventListener('resize', check); addEventListener('orientationchange', check); const iv = setInterval(check, 500);
+      $('#swUpright').onclick = () => done('upright');
+    });
+  }
 };
 
 /* ---------- sync (Supabase RPC over fetch; optional) ---------- */
@@ -1364,7 +1439,6 @@ function toHandoff(resumed){
   $('#hoHow').textContent = `Phone on your forehead, screen facing out. ${useTiltLabel}. ${({classic:'',sudden:'Sudden death: one pass ends the turn.',relay:'Relay: after 3 right answers, pass the phone on.'})[s.mode]}${s.styles ? ' Each card shows the clue-givers how to clue it.' : ''}`;
   $('#readySub').textContent = `${left} seconds on the clock`;
   $('#hoInput').textContent = settings.input === 'tap' ? 'Use tilt instead' : 'Use tap buttons instead';
-  Tilt.learning = true; // phone is in hand, screen toward the reader: learn the face-up sign
   show('handoff');
 }
 $('#hoInput').onclick = () => { settings.input = settings.input === 'tap' ? 'auto' : 'tap'; saveSettings(); toHandoff(); };
@@ -1378,17 +1452,22 @@ $('#readyBtn').onclick = async () => {
   const btn = $('#readyBtn'); btn.disabled = true;
   let ok = false;
   if (wantTilt) { $('#readySub').textContent = 'Checking the motion sensor…'; ok = await Tilt.enable(permP); }
-  setTimeout(() => { Tilt.learning = false; }, 300); // stop learning before the phone reaches the forehead
+  Tilt.learning = true; setTimeout(() => { Tilt.learning = false; }, 400); // phone still in hand, screen toward the player
   btn.disabled = false;
   inputMode = ok ? 'tilt' : 'tap';
   if (wantTilt && !ok && (settings.input === 'tilt' || Tilt.perm === 'denied')) toast(Tilt.perm === 'denied' ? 'Motion access is off, so tap buttons are on. You can allow it in iOS Settings.' : "Tilt isn't available here, so tap buttons are on.", 3600);
+  if (settings.sideways && !session.upright && !Orient.landscape()) {
+    const how = await Orient.waitLandscape();
+    if (how === 'upright') { session.upright = true; saveSession(); }
+  }
+  await Orient.lock();
   Native.keepAwake(true);
   countdown(beginTurn);
 };
 
 function countdown(done){
   const ov = $('#count'), n = $('#countN'), m = $('#countM');
-  m.textContent = inputMode === 'tilt' ? 'Phone on your forehead, screen facing out. Hold still.' : 'Hold the phone up so your team can see the word.';
+  m.textContent = inputMode === 'tilt' ? 'Phone on your forehead, screen facing out. Hold still while the start position is set.' : 'Hold the phone up so your team can see the word.';
   const er = $('#eraser'); const scrawl = () => { n.classList.remove('scrawl'); er.classList.remove('go'); void n.offsetWidth; n.classList.add('scrawl'); er.classList.add('go'); };
   ov.classList.add('on'); let k = 3; n.textContent = k; Sound.count(); scrawl();
   if (inputMode === 'tilt') { Tilt.enabled = false; setTimeout(() => Tilt.startCalibration(), 1500); }
@@ -1434,6 +1513,10 @@ function loop(){
   if (sec !== lastSec) { lastSec = sec; if (sec <= 10 && sec > 0) Sound.tick();
     if (sec <= 5 && sec > 0) { const d = $('#dial'); d.classList.remove('tick'); void d.offsetWidth; d.classList.add('tick'); } }
   if (now() - lastSave > 2000) { lastSave = now(); saveSession(); }
+  if (inputMode === 'tilt' && !Tilt.live()) { // motion data stopped mid-turn: switch to tap buttons
+    inputMode = 'tap'; Tilt.enabled = false; $('#play').classList.remove('tilt');
+    toast('The motion sensor stopped, so tap buttons are on for this turn.', 3600);
+  }
   if (left <= 0) { endTurn(); return; }
   requestAnimationFrame(loop);
 }
@@ -1533,6 +1616,7 @@ function endTurn(){
   showRecap();
 }
 function showRecap(){
+  Orient.unlock();
   const s = session, ti = teamIdx(), team = s.teams[ti], res = s.turn.results;
   const total = s.rounds * s.teams.length, last = s.t + 1 >= total;
   $('#rcMeta').textContent = s.daily ? `Daily deck, ${s.dailyKey}` : `Turn ${roundNo()} of ${s.rounds}`;
@@ -1633,6 +1717,7 @@ $('#fnShare').onclick = async () => {
 };
 
 function finishGame(early){
+  Orient.unlock();
   const s = session; if (!s) return;
   running = false; Tilt.enabled = false; Native.keepAwake(false);
   if (s.turn && s.turn.ended && early) { /* uncommitted recap: count it */ }
@@ -1750,6 +1835,8 @@ function renderSettings(){
   renderMotionHint();
   seg($('#segInput'), [['auto','Tilt, tap if needed'],['tilt','Tilt only'],['tap','Tap buttons']], settings.input, v => { settings.input = v; saveSettings(); renderInputHint(); });
   renderInputHint();
+  seg($('#segSideways'), [['1','Ask to turn sideways'],['0','Any way up']], settings.sideways ? '1' : '0', v => { settings.sideways = v === '1'; saveSettings(); renderSwHint(); });
+  renderSwHint();
   seg($('#segFlip'), [['0','Down is got it'],['1','Reversed']], settings.flip ? '1' : '0', v => { settings.flip = v === '1'; saveSettings(); });
   seg($('#segSens'), [['low','Firm'],['normal','Normal'],['high','Light']], settings.sens, v => { settings.sens = v; saveSettings(); });
   seg($('#segSound'), [['1','Sound on'],['0','Sound off']], settings.sound ? '1' : '0', v => { settings.sound = v === '1'; saveSettings(); });
@@ -1770,6 +1857,7 @@ function renderThemes(){
     setBoard(b.id); renderThemes();
   });
 }
+function renderSwHint(){ $('#swHint').textContent = settings.sideways ? 'Before each turn the game asks you to turn the phone sideways, then holds the screen that way until the turn ends.' : 'Turns start in whatever way you hold the phone, and the screen stays that way until the turn ends. Good for phone stands.'; }
 function renderInputHint(){ $('#inputHint').textContent = ({auto:'Uses the motion sensor, and switches to buttons if it isn’t available.',tilt:'Always use the motion sensor.',tap:'Big Got it and Pass buttons. Good for phone holders and cases that make tilting awkward.'})[settings.input]; }
 function ago(t){ const s = Math.round((Date.now()-t)/1000); return s < 60 ? 'just now' : s < 3600 ? `${Math.round(s/60)} min ago` : s < 86400 ? `${Math.round(s/3600)} h ago` : `${Math.round(s/86400)} days ago`; }
 function renderSyncStatus(){
@@ -1799,19 +1887,43 @@ function renderSyncStatus(){
 }
 $('#resetAll').onclick = async () => {
   if (!(await ask('Erase stats, history, decks and settings on this device?', 'Erase', 'Anything already synced stays on the server'))) return;
-  ['stats','history','decks','seen','session','settings','setup','remote','lastSync','faceUp','boardsSeen','introSeen'].forEach(k => store.del(k));
+  ['stats','history','decks','seen','session','settings','setup','remote','lastSync','faceUp','faceHow','boardsSeen','introSeen'].forEach(k => store.del(k));
   location.reload();
 };
+function diagText(){
+  const T = Tilt, f = v => (v >= 0 ? '+' : '') + v.toFixed(1), L = T.last;
+  const dir = settings.flip ? 'tilt down = Pass (reversed)' : 'tilt down = Got it';
+  return [
+    `Sensor     ${T.live() ? T.hz + ' Hz' : 'no data'}, |g| ${T.mag.toFixed(2)}`,
+    `Raw z      ${f(T.z)}`,
+    `Angle      ${f(T.ang || 0)}°   start ${f(T.neutral)}°   change ${f(T.delta())}°`,
+    `Screen     ${Orient.type()} (${Orient.angle()}°)   lock: ${Orient.locked || 'none'}${Orient.err ? ' (' + Orient.err + ')' : ''}`,
+    `Face-up    ${T.faceUp > 0 ? '+1' : '-1'} (${T.faceHow})   ${dir}`,
+    `Threshold  ${T.thresh()}° (${({ low:'Firm', normal:'Normal', high:'Light' })[settings.sens]})   armed: ${T.armed ? 'yes' : 'no'}`,
+    `Last       ${L ? (L.kind === 'got' ? 'Got it' : 'Pass') + ' at ' + f(L.d) + '°, ' + Math.round((now() - L.at) / 1000) + ' s ago' : 'none yet'}`
+  ].join('\n');
+}
+let diagT = 0;
 $('#testTilt').onclick = async () => {
   Tilt.unavailable = false;
   const p = Tilt.requestPermission();
   const ok = await Tilt.enable(p);
   if (!ok) { toast(Tilt.perm === 'denied' ? 'Motion access is off. Allow it in iOS Settings, then try again.' : 'No motion sensor found on this device.'); return; }
-  $('#tester').classList.add('on'); $('#tOut').textContent = ''; Tilt.neutral = 0; Tilt.rearm(); Tilt.enabled = true;
-  Tilt.onRaw = d => { $('#tDot').style.left = clamp(50 + d / 10 * 50, 3, 97) + '%'; };
-  Tilt.onFire = k => { $('#tOut').textContent = k === 'got' ? 'Got it' : 'Pass'; $('#tOut').style.color = k === 'got' ? 'var(--sage)' : 'var(--miss)'; Native.haptic(k); };
+  $('#tester').classList.add('on'); $('#tOut').textContent = '';
+  Tilt.neutral = Tilt.ang || 0; Tilt.rearm(true); Tilt.enabled = true;
+  Tilt.onRaw = d => { $('#tDot').style.left = clamp(50 + d / 60 * 50, 3, 97) + '%'; if (now() - diagT > 100) { diagT = now(); $('#tDiag').textContent = diagText(); } };
+  Tilt.onFire = k => { $('#tOut').textContent = k === 'got' ? 'Got it' : 'Pass'; $('#tOut').style.color = k === 'got' ? 'var(--ok-text)' : 'var(--no-text)'; Native.haptic(k); };
+  $('#tDiag').textContent = diagText();
 };
+$('#tZero').onclick = () => { Tilt.neutral = Tilt.ang || 0; Tilt.rearm(true); $('#tDiag').textContent = diagText(); };
+$('#tCopy').onclick = async () => { const t = diagText(); try { await navigator.clipboard.writeText(t); toast('Readings copied'); } catch(e){ await ask(t, 'Done', 'Copy this text to send it'); } };
 $('#tClose').onclick = () => { Tilt.enabled = false; Tilt.onRaw = null; Tilt.onFire = act; $('#tester').classList.remove('on'); };
+
+/* ---------- early motion listening (native only; on the web it could trigger a permission prompt) ---------- */
+document.addEventListener('pointerdown', () => {
+  const C = window.Capacitor; if (!C || !(C.isNativePlatform ? C.isNativePlatform() : C.isNative) || settings.input === 'tap') return;
+  const p = Tilt.requestPermission(); Tilt.enable(p).catch(() => {});
+}, { once:true, capture:true });
 
 /* ---------- navigation ---------- */
 document.addEventListener('click', e => {

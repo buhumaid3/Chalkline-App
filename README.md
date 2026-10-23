@@ -14,7 +14,7 @@ Charades for game night. Single-file HTML/JS game in a Capacitor 8 iOS shell, bu
 | `supabase/schema.sql` | Optional sync backend: one table, one function |
 | `codemagic.yaml`, `scripts/ci-ios.sh` | CI: generate iOS project, patch it, sign, upload to TestFlight |
 | `assets/` | 1024 icon and splash (a blank slate board, so the launch intro starts from it seamlessly), turned into iOS assets during CI |
-| `tests/` | Smoke, v1.1 features, v1.2 themes and motion, v1.3 Arabic, v1.4 launch intro, two-device sync, plus `perf.mjs` (frame times, not part of `npm test`) |
+| `tests/` | Smoke, v1.1 features, v1.2 themes and motion, v1.3 Arabic, v1.4 launch intro, v1.4.1 tilt/orientation and screen fit, two-device sync, plus `perf.mjs` (frame times, not part of `npm test`) |
 | `docs/privacy.html` | Privacy policy for the App Store listing |
 
 To edit words: change `src/words-*.txt`, run `python3 tools/build.py`, commit. The build prints per-deck counts and flags duplicates.
@@ -48,6 +48,18 @@ Repo Settings > Pages > Deploy from branch `main`, folder `/docs`. Your URL is `
 - Age rating: answer "None" to every content question. There's no mature content in the app.
 - Privacy label: with sync off, "Data Not Collected". With sync on, "Gameplay Content", not linked to the user, not used for tracking.
 - No in-app purchases, no ads.
+
+## What's new in 1.4.1
+- Orientation: menus turn freely; from Ready until the recap the screen is locked to the side the player is holding (`@capacitor/screen-orientation` 8.0.2), so tilting on the forehead can't rotate it. In portrait, Ready asks "Turn your phone sideways" and starts once it's landscape, or "Play upright instead" for this game. Settings > Orientation turns the prompt off (phone stands).
+- Tilt rewritten:
+  - Read as an angle, so up and down both register from any starting angle. Before, a tipped-back start could make "up" unreachable on Firm.
+  - A tilt must be held past the line for 40 ms, so bumps don't count; hand jolts are ignored.
+  - Starting position is re-set only if the start was misjudged. Before, holding a slow nod could make the next "back to level" fire the opposite answer.
+  - The face-up direction is learned while the phone lies on a table or is held to read between turns, plus a quick read at Ready.
+  - If motion data stops mid-turn, tap buttons take over with a message.
+- Settings > Test tilt shows live readings (sample rate, angle, start position, screen orientation, face-up sign, threshold, last decision) with a Copy readings button.
+- Landscape play: Pass and Got it sit beside the card, so the word gets the height (landscape word size up from 72-89 px to 125-176 px across iPhones).
+- Safe areas: the board fills the notch and home-bar areas; overlays keep their content inside the safe area; Pause is 44 pt.
 
 ## What's new in 1.4
 - Launch intro: chalk writes "Chalkline" letter by letter on a blank board, swooshes the underline and puffs chalk dust, then the board crossfades into the player's theme as the menu cards deal in.

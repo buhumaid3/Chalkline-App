@@ -93,7 +93,7 @@ console.log('Resume and reduced motion');
 {
   const { ctx, page, errors } = await ctxPage();
   await page.goto(PAGE); await page.waitForTimeout(2600);
-  await page.evaluate(() => { settings.input = 'tap'; saveSettings(); });
+  await page.evaluate(() => { settings.input = 'tap'; settings.sideways = false; saveSettings(); });
   await page.click('#mNew'); await page.click('#startBtn'); await page.click('#readyBtn'); await page.waitForTimeout(2800);
   await page.click('#tapGot'); await page.waitForTimeout(500);
   const t0 = Date.now();

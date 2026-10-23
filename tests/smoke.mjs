@@ -33,6 +33,7 @@ console.log('Cold start and full game');
   ok(await vis(page, '#menu'), 'menu visible after cold start');
   ok(Date.now() - t0 < 5000, 'cold start under 5s wall time');
   await shot(page, '01-menu');
+  await page.evaluate(() => { settings.sideways = false; saveSettings(); }); // portrait test run: skip the turn-sideways prompt
   await page.click('#mNew');
   ok(await vis(page, '#setup'), 'setup opens');
   await page.locator('#segTimer button[data-v="30"]').click();
@@ -91,7 +92,7 @@ console.log('Kill during recap');
 {
   const { ctx, page, errors } = await fresh();
   await page.goto(PAGE); await tick(page, 1300);
-  await page.evaluate(() => { localStorage.setItem('cl1.settings', JSON.stringify({ input:'tap' })); localStorage.setItem('cl1.setup', JSON.stringify({ timer:30, rounds:1, styles:false })); });
+  await page.evaluate(() => { localStorage.setItem('cl1.settings', JSON.stringify({ input:'tap', sideways:false })); localStorage.setItem('cl1.setup', JSON.stringify({ timer:30, rounds:1, styles:false })); });
   await page.reload(); await tick(page, 1300);
   await page.click('#mNew'); await page.click('#startBtn'); await page.click('#readyBtn'); await tick(page, 2600);
   await page.click('#tapGot'); await tick(page, 31500);
@@ -112,7 +113,7 @@ console.log('Daily deck');
   const b = await page.evaluate(() => dailyDeck('2026-10-13').slice(0,5).join(','));
   const c = await page.evaluate(() => dailyDeck('2026-10-14').slice(0,5).join(','));
   ok(a === b && a !== c, 'same seed same deck, next day different');
-  await page.evaluate(() => localStorage.setItem('cl1.settings', JSON.stringify({ input:'tap' })));
+  await page.evaluate(() => localStorage.setItem('cl1.settings', JSON.stringify({ input:'tap', sideways:false })));
   await page.reload(); await tick(page, 1300);
   await page.click('#mDaily'); await page.click('#readyBtn'); await tick(page, 2600);
   await page.click('#tapGot'); await tick(page, 500); await page.click('#tapGot'); await tick(page, 61000);

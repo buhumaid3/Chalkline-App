@@ -22,7 +22,7 @@ const ctx = await browser.newContext({ viewport:{ width:390, height:844 }, devic
 const page = await ctx.newPage();
 const cdp = await ctx.newCDPSession(page);
 await page.goto(PAGE); await page.waitForTimeout(600);
-await page.evaluate(() => { localStorage.setItem('cl1.settings', JSON.stringify({ input:'tap', board:'majlis', boardAt:1 }));
+await page.evaluate(() => { localStorage.setItem('cl1.settings', JSON.stringify({ input:'tap', sideways:false, board:'majlis', boardAt:1 }));
   localStorage.setItem('cl1.stats', JSON.stringify({ games:3, deck:{ uae:[30,20] } }));
   localStorage.setItem('cl1.setup', JSON.stringify({ timer:30, rounds:1, teams:[{name:'Red team',players:''},{name:'Blue team',players:''}] })); });
 await cdp.send('Emulation.setCPUThrottlingRate', { rate:4 });
